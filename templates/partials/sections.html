@@ -1,0 +1,61 @@
+{{define "catalog-section"}}
+  <section class="catalog" id="catalog">
+    <div class="catalog__head">
+      <h2 class="h2">Что есть сейчас</h2>
+      <div class="filters" role="group" aria-label="Фильтр по типу изделия">
+        <button class="chip is-on" type="button"
+                hx-get="/catalog?cat=all" hx-target="#grid" hx-swap="outerHTML" data-chip>Всё</button>
+        <button class="chip" type="button"
+                hx-get="/catalog?cat=keychain" hx-target="#grid" hx-swap="outerHTML" data-chip>Брелки</button>
+        <button class="chip" type="button"
+                hx-get="/catalog?cat=scarf" hx-target="#grid" hx-swap="outerHTML" data-chip>Шарфы</button>
+      </div>
+    </div>
+    {{template "grid.html" .}}
+  </section>
+{{end}}
+
+{{define "workshops-section"}}
+  <section class="workshops" id="workshops">
+    <div class="workshops__intro">
+      <h2 class="h2">Приходите валять сами</h2>
+      <p>Шерсть, иглы, мыло и стол — всё на месте. Приносить ничего не нужно, опыт тоже не нужен: за один вечер человек с нуля доводит вещь до конца. Группы маленькие, поэтому я успеваю подойти к каждому.</p>
+    </div>
+
+    <ul class="ws-list">
+      {{range .Workshops}}
+      <li class="ws" data-reveal>
+        <div class="ws__meta">
+          <h3 class="ws__title">{{.Title}}</h3>
+          <p class="ws__when">{{.Date}} · {{.Duration}}</p>
+        </div>
+        <p class="ws__summary">{{.Summary}}</p>
+        <p class="ws__take">{{.Takeaway}}</p>
+        <p class="ws__price"><strong>{{.PriceFmt}}</strong> · осталось мест: {{.Seats}}</p>
+      </li>
+      {{end}}
+    </ul>
+
+    <form class="signup" hx-post="/workshop/signup" hx-target="#signup-result" hx-swap="innerHTML">
+      <h3 class="signup__title">Занять место</h3>
+      <div class="signup__row">
+        <label class="field">
+          <span class="field__label">Как вас зовут</span>
+          <input class="field__input" type="text" name="name" autocomplete="name" required>
+        </label>
+        <label class="field">
+          <span class="field__label">Телеграм или телефон</span>
+          <input class="field__input" type="text" name="contact" autocomplete="tel" required>
+        </label>
+      </div>
+      <label class="field">
+        <span class="field__label">Какой мастер-класс</span>
+        <select class="field__input" name="workshop">
+          {{range .Workshops}}<option value="{{.ID}}">{{.Title}} — {{.Date}}</option>{{end}}
+        </select>
+      </label>
+      <button class="btn btn--solid" type="submit">Записаться</button>
+      <div id="signup-result" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+{{end}}

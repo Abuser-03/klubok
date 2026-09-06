@@ -1,0 +1,76 @@
+{{define "cart.html"}}
+<aside class="cart" id="cart-panel" aria-label="Корзина" data-cart>
+  <div class="cart__head">
+    <h2 class="cart__title">Корзина</h2>
+    <button class="cart__close" type="button" data-close-cart aria-label="Закрыть корзину">Закрыть</button>
+  </div>
+
+  {{if .CartEmpty}}
+  <div class="cart__empty">
+    <p>Пока пусто.</p>
+    <p class="cart__hint">Выберите брелок или шарф — каждый в одном экземпляре, поэтому долго ждать их не стоит.</p>
+  </div>
+  {{else}}
+  <ul class="cart__list">
+    {{range .CartLines}}
+    <li class="cart__line">
+      <span class="cart__dot" style="background: {{.Product.Wool}}"></span>
+      <div class="cart__info">
+        <span class="cart__name">{{.Product.Title}}</span>
+        <span class="cart__tech">{{.Product.Technique}}</span>
+      </div>
+      <span class="cart__sum">{{.SumFmt}}</span>
+      <button class="cart__drop" type="button"
+              hx-post="/cart/remove/{{.Product.ID}}"
+              hx-target="#cart-panel"
+              hx-swap="outerHTML"
+              aria-label="Убрать {{.Product.Title}} из корзины">Убрать</button>
+    </li>
+    {{end}}
+  </ul>
+
+  <div class="cart__foot">
+    <p class="cart__total"><span>Итого</span><strong>{{.CartSum}}</strong></p>
+    <form hx-post="/checkout" hx-target="#cart-panel" hx-swap="outerHTML">
+      <button class="btn btn--solid btn--block" type="submit">Оформить заказ</button>
+    </form>
+    <p class="cart__fine">Оплата откроется внутри Telegram. Доставка по России, отправляю раз в неделю.</p>
+  </div>
+  {{end}}
+</aside>
+
+<span class="bar__count" id="cart-count" data-count="{{.CartCount}}" hx-swap-oob="true">{{if .CartCount}}{{.CartCount}}{{end}}</span>
+{{end}}
+
+
+{{define "checkout.html"}}
+<aside class="cart is-open" id="cart-panel" aria-label="Заказ оформлен" data-cart>
+  <div class="cart__head">
+    <h2 class="cart__title">Заказ принят</h2>
+    <button class="cart__close" type="button" data-close-cart aria-label="Закрыть">Закрыть</button>
+  </div>
+  <div class="cart__done">
+    <p class="cart__order">№ {{.OrderID}}</p>
+    <p>Заказ создан у нас в базе со статусом «ожидает оплаты» на сумму <strong>{{.Sum}}</strong>. Следующим шагом откроется окно оплаты.</p>
+    <p class="cart__hint">Как только платёжный шлюз подтвердит оплату, статус заказа поменяется сам, и вам придёт сообщение в Telegram.</p>
+  </div>
+</aside>
+
+<span class="bar__count" id="cart-count" data-count="0" hx-swap-oob="true"></span>
+{{end}}
+
+
+{{define "signup-ok.html"}}
+<div class="note note--ok">
+  <p><strong>{{.Name}}, место за вами.</strong></p>
+  <p>Мастер-класс «{{.Workshop.Title}}», {{.Workshop.Date}}. Я напишу вам за день до начала и пришлю адрес.</p>
+</div>
+{{end}}
+
+
+{{define "signup-error.html"}}
+<div class="note note--bad">
+  <p>Заявка не ушла:</p>
+  <ul>{{range .Problems}}<li>{{.}}</li>{{end}}</ul>
+</div>
+{{end}}

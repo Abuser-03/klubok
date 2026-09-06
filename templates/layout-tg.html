@@ -1,0 +1,46 @@
+{{define "layout-tg.html"}}<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Клубок</title>
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/tg.css">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="tg">
+
+{{/* Шапки сайта здесь нет: название чата, кнопка «назад» и закрытие —
+     это нативный интерфейс Telegram, дублировать его значит съедать
+     и без того маленький экран. Остаётся только счётчик корзины. */}}
+<header class="tgbar">
+  <span class="tgbar__greet">{{if .Viewer.Name}}{{.Viewer.Name}}, здесь{{else}}Здесь{{end}} всё в одном экземпляре</span>
+  <button class="tgbar__cart" type="button" data-open-cart aria-label="Открыть корзину">
+    Корзина
+    <span class="bar__count" id="cart-count" data-count="{{.CartCount}}">{{if .CartCount}}{{.CartCount}}{{end}}</span>
+  </button>
+</header>
+
+<main>
+  {{/* Хиро с анимацией нитей выброшен намеренно: в Mini App человек
+       приходит уже решившим, ему нужен товар, а не первый экран. */}}
+  {{template "catalog-section" .}}
+  {{template "workshops-section" .}}
+</main>
+
+{{template "cart.html" .}}
+<div class="scrim" data-scrim hidden></div>
+
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
+{{end}}
