@@ -462,3 +462,168 @@ body {
   }
   .hero__fibres { opacity: .5; }
 }
+
+/* === Каталог как акцентная секция ====================================== */
+
+/* Каталог поднят на светлую плиту с закруглённым верхом: это главная
+   коммерческая секция, и она не должна читаться как продолжение хиро. */
+.catalog {
+  background: var(--surface);
+  border-radius: 28px 28px 0 0;
+  border: 1px solid var(--rule);
+  border-bottom: none;
+  margin-top: 1rem;
+}
+
+.catalog__title {
+  margin: 0;
+  font: 400 clamp(2rem, 6vw, 3.5rem)/1.02 var(--serif);
+  letter-spacing: -.02em;
+}
+
+.catalog__count {
+  margin: .5rem 0 0;
+  font-size: .92rem;
+  color: var(--madder);
+}
+
+.card__price { font-size: 1.15rem; }
+
+/* Проданное не прячем: пустое место в витрине лучше всего объясняет,
+   почему остальное стоит брать сейчас. */
+.card--gone .card__art { position: relative; }
+.card--gone .card__art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg, transparent 0 12px, color-mix(in srgb, var(--ink) 6%, transparent) 12px 24px);
+}
+
+/* === Сцена валяния ===================================================== */
+
+.felt {
+  margin: 2.5rem 0 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.felt__stage {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: rgba(244, 246, 239, .07);
+  border: 1px solid rgba(244, 246, 239, .22);
+  border-radius: 16px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.felt__stage:hover { border-color: rgba(240, 217, 168, .55); }
+.felt__stage:focus-visible { outline: 2px solid #f0d9a8; outline-offset: 3px; }
+.felt__stage svg { display: block; width: 100%; height: auto; }
+
+.felt__hint {
+  position: absolute;
+  left: 50%;
+  bottom: .9rem;
+  transform: translateX(-50%);
+  font: 500 .85rem/1 var(--sans);
+  color: #f0d9a8;
+  background: rgba(34, 38, 31, .45);
+  padding: .45rem .9rem;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.felt__meter { color: #d6dfcd; }
+.felt__count { margin: 0 0 .5rem; font-size: .9rem; }
+.felt__count strong { font: 500 2.4rem/1 var(--serif); color: #f4f6ef; display: block; }
+
+.felt__bar {
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(244, 246, 239, .18);
+  overflow: hidden;
+}
+.felt__bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: #f0d9a8;
+  transition: width .4s var(--ease);
+}
+
+.felt__note { margin: .75rem 0 0; font-size: .87rem; color: #b6c4aa; min-height: 2.6em; }
+
+/* === Призыв после того, как фигурка свалялась ========================== */
+
+.pitch {
+  margin: 2rem 0 0;
+  padding: 1.75rem;
+  max-width: 44rem;
+  background: #f0d9a8;
+  border-radius: 4px 4px 20px 20px;
+  color: #412402;
+}
+.pitch__line { margin: 0 0 .6rem; font: 400 1.5rem/1.2 var(--serif); }
+.pitch__line strong { font-weight: 500; }
+.pitch__body { margin: 0 0 1.25rem; font-size: .96rem; color: #633806; }
+
+.btn--pitch {
+  background: #22261f;
+  color: #f4f6ef;
+  border-color: #22261f;
+  font-size: 1rem;
+  padding: .95rem 1.9rem;
+}
+.btn--pitch:hover { background: var(--madder); border-color: var(--madder); }
+
+/* === Мастер-классы: места точками ====================================== */
+
+.workshops__lead { max-width: 42rem; }
+.workshops__title {
+  margin: 0;
+  font: 400 clamp(1.9rem, 5vw, 3rem)/1.08 var(--serif);
+  letter-spacing: -.015em;
+  color: #f4f6ef;
+}
+.workshops__sub { margin: 1rem 0 0; color: #ccd6c2; }
+
+.ws__head { margin-bottom: .2rem; }
+
+.ws__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 246, 239, .18);
+}
+.ws__price { font: 500 1.35rem/1 var(--serif); color: #f4f6ef; }
+
+.ws__seats { display: inline-flex; align-items: center; gap: .35rem; }
+.seat {
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: #f0d9a8;
+}
+.seat--taken { background: rgba(244, 246, 239, .22); }
+.ws__seatsnum { margin-left: .35rem; font-size: .8rem; color: #b6c4aa; }
+
+/* Дефицит здесь настоящий: группы маленькие, мест правда мало. */
+.ws--last { border-color: rgba(240, 217, 168, .5); }
+.ws--last .ws__seatsnum { color: #f0d9a8; }
+
+.signup__fine { margin: .85rem 0 0; font-size: .8rem; color: #b6c4aa; }
+
+@media (max-width: 46rem) {
+  .felt { grid-template-columns: 1fr; }
+  .felt__count strong { font-size: 2rem; }
+}

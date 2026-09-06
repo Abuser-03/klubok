@@ -300,6 +300,113 @@
     });
   }
 
+
+  // =========================================================================
+  // Сцена валяния
+  //
+  // Вся анимация подчинена одному числу — плотности от 0 до 1. Каждый удар
+  // её повышает, а geometry подтягивается следом: волокна втягиваются,
+  // ядро сжимается и темнеет, ореол уходит, к концу проступает фигурка.
+  // Состояние живёт в одном месте, поэтому сцену нельзя рассинхронизировать.
+  // =========================================================================
+  var STRIKES = 14; // столько ударов до готовой фигурки на экране
+
+  function initFelting() {
+    var stage = document.querySelector('[data-felt]');
+    if (!stage) return;
+
+    var svg     = stage.querySelector('svg');
+    var needle  = svg.querySelector('[data-needle]');
+    var core    = svg.querySelector('[data-core]');
+    var halo    = svg.querySelector('[data-halo]');
+    var fibres  = svg.querySelector('[data-fibres]');
+    var shape   = svg.querySelector('[data-shape]');
+    var spray   = svg.querySelector('[data-spray]');
+    var hint    = document.querySelector('[data-felt-hint]');
+    var countEl = document.querySelector('[data-felt-count]');
+    var fillEl  = document.querySelector('[data-felt-fill]');
+    var noteEl  = document.querySelector('[data-felt-note]');
+    var pitch   = document.querySelector('[data-pitch]');
+
+    var hits = 0;
+    var busy = false;
+
+    var notes = [
+      'Шерсть спутывается от каждого укола. Обратно уже не расправится.',
+      'Зазубрины на игле тащат волокна внутрь — вот и весь механизм.',
+      'Ком становится плотнее и меньше. Так и должно быть.',
+      'Уже держит форму. Дальше только уточнять детали.'
+    ];
+
+    // Плотность → геометрия. Одна функция, вызывается и после удара,
+    // и при мгновенной отрисовке в режиме «меньше движения».
+    function apply(d, animate) {
+      var to = animate && motion ? gsap.to.bind(gsap) : gsap.set.bind(gsap);
+      var dur = { duration: 0.45, ease: 'power2.out' };
+
+      to(fibres, Object.assign({ scale: 1 - d * 0.72, opacity: 0.7 - d * 0.62,
+                                 transformOrigin: '340px 236px' }, animate ? dur : {}));
+      to(core,   Object.assign({ attr: { rx: 52 - d * 14, ry: 36 - d * 8 },
+                                 opacity: 0.42 + d * 0.5 }, animate ? dur : {}));
+      to(halo,   Object.assign({ opacity: 0.14 * (1 - d), scale: 1 - d * 0.3,
+                                 transformOrigin: '340px 236px' }, animate ? dur : {}));
+      // Фигурка проступает только на последней трети — раньше её там нет.
+      to(shape,  Object.assign({ opacity: d < 0.66 ? 0 : (d - 0.66) / 0.34 }, animate ? dur : {}));
+
+      if (fillEl) fillEl.style.width = Math.round(d * 100) + '%';
+    }
+
+    function finish() {
+      if (!pitch || !pitch.hidden) return;
+      pitch.hidden = false;
+      var n = document.querySelector('[data-pitch-count]');
+      if (n) n.textContent = hits;
+      if (hint) hint.textContent = 'Ещё раз?';
+      if (motion) gsap.from(pitch, { opacity: 0, y: 18, duration: 0.6, ease: 'power2.out' });
+    }
+
+    function strike() {
+      if (busy) return;
+
+      hits++;
+      var d = Math.min(hits / STRIKES, 1);
+      if (countEl) countEl.textContent = hits;
+      if (noteEl) noteEl.textContent = notes[Math.min(Math.floor(d * notes.length), notes.length - 1)];
+      if (hint && hits === 1) hint.textContent = 'Ещё';
+
+      if (!motion) {
+        apply(d, false);
+        if (d === 1) finish();
+        return;
+      }
+
+      busy = true;
+
+      gsap.timeline({ onComplete: function () { busy = false; if (d === 1) finish(); } })
+        // Вниз резко, вверх мягко — так двигается рука, а не механизм.
+        .to(needle, { y: 58, duration: 0.11, ease: 'power3.in' })
+        .add(function () { apply(d, true); })
+        // Ком проседает под ударом и отыгрывает обратно.
+        .to([core, halo], { scaleY: 0.9, transformOrigin: '340px 262px', duration: 0.09, ease: 'power2.out' }, '<')
+        .to(spray, { opacity: 0.75, scale: 1.5, transformOrigin: '340px 226px', duration: 0.22, ease: 'power2.out' }, '<')
+        .to([core, halo], { scaleY: 1, duration: 0.3, ease: 'elastic.out(1, 0.5)' })
+        .to(spray, { opacity: 0, scale: 1, duration: 0.2 }, '<')
+        .to(needle, { y: 0, duration: 0.26, ease: 'power2.out' }, '-=0.28');
+    }
+
+    stage.addEventListener('click', strike);
+
+    // Один удар при появлении секции — иначе неочевидно, что это кнопка.
+    if (motion && window.ScrollTrigger) {
+      ScrollTrigger.create({
+        trigger: stage,
+        start: 'top 75%',
+        once: true,
+        onEnter: function () { setTimeout(strike, 500); }
+      });
+    }
+  }
+
   // =========================================================================
   // htmx: восстанавливаем то, что живёт на клиенте
   // =========================================================================
@@ -343,6 +450,7 @@
 
   // =========================================================================
   playHero();
+  initFelting();
   revealCards();
   syncMainButton();
   lastTotal = readTotal();

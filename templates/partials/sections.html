@@ -1,8 +1,6 @@
 {{/*
   Хиро сайта. Нити шерсти прорисовываются на загрузке через
-  stroke-dashoffset и потом медленно плывут при скролле — это
-  единственный неспровоцированный пользователем момент движения
-  на всей странице.
+  stroke-dashoffset и потом медленно плывут при скролле.
 */}}
 {{define "hero"}}
   <section class="hero">
@@ -27,17 +25,29 @@
       <p class="hero__lede">Брелки, шарфы и палантины. Каждая вещь существует в одном экземпляре — второй такой не будет, даже если очень попросить.</p>
       <div class="hero__acts">
         <a class="btn btn--solid" href="#catalog">Смотреть каталог</a>
-        <a class="btn btn--ghost" href="#workshops">Прийти валять самому</a>
+        <a class="btn btn--ghost" href="#workshops">Попробовать самому</a>
       </div>
     </div>
   </section>
 {{end}}
 
 
+{{/*
+  Каталог. Вынесен на отдельную светлую плиту с крупным заголовком —
+  это главная коммерческая секция, и она не должна выглядеть как
+  продолжение хиро.
+
+  Счётчик в заголовке — не украшение: он показывает настоящий остаток,
+  а поскольку каждая вещь в одном экземпляре, «осталось восемь» здесь
+  буквальная правда, а не приём.
+*/}}
 {{define "catalog-section"}}
   <section class="catalog" id="catalog">
     <div class="catalog__head">
-      <h2 class="h2">Что есть сейчас</h2>
+      <div>
+        <h2 class="catalog__title">Что есть сейчас</h2>
+        <p class="catalog__count">{{.StockLeft}} из {{.StockTotal}} ещё свободны — каждая вещь в одном экземпляре</p>
+      </div>
       <div class="filters" role="group" aria-label="Фильтр по типу изделия">
         <button class="chip is-on" type="button"
                 hx-get="/catalog?cat=all" hx-target="#grid" hx-swap="outerHTML" data-chip>Всё</button>
@@ -51,28 +61,67 @@
   </section>
 {{end}}
 
+
+{{/*
+  Мастер-классы.
+
+  Порядок блоков выбран под конверсию: сначала человек сам бьёт иглой
+  и что-то сваливает, и только потом видит цену и форму. Сцена делает
+  за текст всю работу — объясняет, что это такое, и показывает, что
+  это приятно.
+*/}}
 {{define "workshops-section"}}
   <section class="workshops" id="workshops">
-    <div class="workshops__intro">
-      <h2 class="h2">Приходите валять сами</h2>
-      <p>Шерсть, иглы, мыло и стол — всё на месте. Приносить ничего не нужно, опыт тоже не нужен: за один вечер человек с нуля доводит вещь до конца. Группы маленькие, поэтому я успеваю подойти к каждому.</p>
+
+    <div class="workshops__lead">
+      <h2 class="workshops__title">Свалять может каждый.<br>Проверьте прямо здесь.</h2>
+      <p class="workshops__sub">Шерсть держится не на клее и не на нитке — только на том, что волокна зацепились друг за друга. Ткните иглой несколько раз и посмотрите, что произойдёт.</p>
+    </div>
+
+    {{template "felting" .}}
+
+    {{/* Появляется, когда фигурка свалялась. Цифра настоящая: столько
+         примерно уколов уходит на небольшой брелок. */}}
+    <div class="pitch" data-pitch hidden>
+      <p class="pitch__line">Готово. У вас ушло <strong data-pitch-count>0</strong> ударов.</p>
+      <p class="pitch__body">На настоящий брелок их нужно около трёх тысяч — это три часа за столом, и это, честно говоря, лучшая часть. Шерсть, иглы и губки уже лежат, опыт не нужен: за один вечер человек с нуля доводит вещь до конца и уносит её с собой.</p>
+      <a class="btn btn--pitch" href="#signup">Занять место</a>
     </div>
 
     <ul class="ws-list">
       {{range .Workshops}}
-      <li class="ws" data-reveal>
-        <div class="ws__meta">
+      <li class="ws{{if le .Seats 2}} ws--last{{end}}" data-reveal>
+        <div class="ws__head">
           <h3 class="ws__title">{{.Title}}</h3>
-          <p class="ws__when">{{.Date}} · {{.Duration}}</p>
+          {{/* Дата считается от сегодняшней, поэтому объявление не протухает
+               и «через сколько дней» — настоящая цифра, а не приём. */}}
+          <p class="ws__when">{{.WhenFmt}} · {{.Duration}}</p>
         </div>
+
         <p class="ws__summary">{{.Summary}}</p>
         <p class="ws__take">{{.Takeaway}}</p>
-        <p class="ws__price"><strong>{{.PriceFmt}}</strong> · осталось мест: {{.Seats}}</p>
+
+        {{/* Самый сильный честный аргумент: готовая вещь в магазине стоит
+             дороже занятия, на котором её делают своими руками. */}}
+        {{if .Saving}}
+        <p class="ws__deal">«{{.CompareTitle}}» в каталоге стоит на <strong>{{.Saving}}</strong> дороже, чем это занятие. А тут вы ещё и научитесь.</p>
+        {{end}}
+
+        <div class="ws__foot">
+          <span class="ws__price">{{.PriceFmt}}</span>
+          <span class="ws__seats" title="Свободных мест: {{.Seats}} из {{.SeatsTotal}}">
+            {{range .SeatsFree}}<i class="seat"></i>{{end}}
+            {{range .SeatsTaken}}<i class="seat seat--taken"></i>{{end}}
+            <span class="ws__seatsnum">{{if le .Seats 2}}осталось {{.Seats}}{{else}}{{.Seats}} из {{.SeatsTotal}}{{end}}</span>
+          </span>
+        </div>
+
+        <p class="ws__soon">{{.SoonFmt}}</p>
       </li>
       {{end}}
     </ul>
 
-    <form class="signup" hx-post="/workshop/signup" hx-target="#signup-result" hx-swap="innerHTML">
+    <form class="signup" id="signup" hx-post="/workshop/signup" hx-target="#signup-result" hx-swap="innerHTML">
       <h3 class="signup__title">Занять место</h3>
       <div class="signup__row">
         <label class="field">
@@ -87,11 +136,13 @@
       <label class="field">
         <span class="field__label">Какой мастер-класс</span>
         <select class="field__input" name="workshop">
-          {{range .Workshops}}<option value="{{.ID}}">{{.Title}} — {{.Date}}</option>{{end}}
+          {{range .Workshops}}<option value="{{.ID}}">{{.Title}} — {{.WhenFmt}}</option>{{end}}
         </select>
       </label>
       <button class="btn btn--solid" type="submit">Записаться</button>
+      <p class="signup__fine">Предоплаты нет. Я напишу вам, чтобы подтвердить, и пришлю адрес.</p>
       <div id="signup-result" role="status" aria-live="polite"></div>
     </form>
+
   </section>
 {{end}}

@@ -51,18 +51,112 @@ func (p Product) CategoryName() string {
 }
 
 // Workshop — мастер-класс.
+//
+// Дата не хранится строкой намеренно. Захардкоженное «20 сентября» через две
+// недели превращается в прошедшую дату, и страница начинает работать против
+// себя: человек видит, что объявление протухло, и уходит. Здесь задаётся день
+// недели и час, а конкретная дата считается от сегодняшней.
 type Workshop struct {
-	ID       string
-	Title    string
-	Date     string
-	Duration string
-	Price    int
-	Seats    int
-	Summary  string
-	Takeaway string
+	ID         string
+	Title      string
+	Weekday    time.Weekday
+	Hour       int
+	Duration   string
+	Price      int
+	Seats      int // осталось свободных
+	SeatsTotal int
+	Summary    string
+	Takeaway   string
+	CompareID  string // изделие, с ценой которого сравниваем
 }
 
 func (w Workshop) PriceFmt() string { return formatRub(w.Price) }
+
+// Next — ближайшее занятие. Если сегодня как раз этот день недели, но час
+// уже прошёл, отдаём следующую неделю: записывать на занятие, которое
+// началось два часа назад, бессмысленно.
+func (w Workshop) Next() time.Time {
+	now := time.Now()
+	days := (int(w.Weekday) - int(now.Weekday()) + 7) % 7
+	next := time.Date(now.Year(), now.Month(), now.Day()+days, w.Hour, 0, 0, 0, now.Location())
+	if !next.After(now) {
+		next = next.AddDate(0, 0, 7)
+	}
+	return next
+}
+
+// SoonFmt печатает срок словами. «Через 0 дн.» выглядит как поломка,
+// хотя означает «сегодня» — а это самая сильная строчка из возможных.
+func (w Workshop) SoonFmt() string {
+	switch d := w.DaysLeft(); {
+	case d <= 0:
+		return "сегодня"
+	case d == 1:
+		return "завтра"
+	case d < 5:
+		return fmt.Sprintf("через %d дня", d)
+	default:
+		return fmt.Sprintf("через %d дней", d)
+	}
+}
+
+func (w Workshop) DaysLeft() int {
+	return int(time.Until(w.Next()).Hours() / 24)
+}
+
+// WhenFmt печатает «в субботу, 12 сентября, в 12:00».
+func (w Workshop) WhenFmt() string {
+	t := w.Next()
+	return fmt.Sprintf("%s, %d %s, в %d:00", weekdayRu[t.Weekday()], t.Day(), monthRu[t.Month()], w.Hour)
+}
+
+// SeatsTaken нужен шаблону, чтобы нарисовать занятые места точками.
+func (w Workshop) SeatsTaken() []int {
+	n := w.SeatsTotal - w.Seats
+	if n < 0 {
+		n = 0
+	}
+	return make([]int, n)
+}
+
+func (w Workshop) SeatsFree() []int { return make([]int, w.Seats) }
+
+// Compare — изделие, с ценой которого сравнивается мастер-класс. Шарф стоит
+// дороже занятия, на котором его валяют, и это лучший аргумент из всех:
+// человек уносит и вещь, и умение сделать следующую.
+func (w Workshop) Compare() (Product, bool) { return productByID(w.CompareID) }
+
+// CompareTitle — название изделия для сравнения. Шаблон не может вызвать
+// Compare() напрямую: методы с двумя возвращаемыми значениями допускаются
+// только в паре со вторым error, а там bool.
+func (w Workshop) CompareTitle() string {
+	p, ok := productByID(w.CompareID)
+	if !ok {
+		return ""
+	}
+	return p.Title
+}
+
+func (w Workshop) Saving() string {
+	p, ok := productByID(w.CompareID)
+	if !ok || p.Price <= w.Price {
+		return ""
+	}
+	return formatRub(p.Price - w.Price)
+}
+
+var weekdayRu = map[time.Weekday]string{
+	time.Monday: "в понедельник", time.Tuesday: "во вторник", time.Wednesday: "в среду",
+	time.Thursday: "в четверг", time.Friday: "в пятницу", time.Saturday: "в субботу",
+	time.Sunday: "в воскресенье",
+}
+
+var monthRu = map[time.Month]string{
+	time.January: "января", time.February: "февраля", time.March: "марта",
+	time.April: "апреля", time.May: "мая", time.June: "июня",
+	time.July: "июля", time.August: "августа", time.September: "сентября",
+	time.October: "октября", time.November: "ноября", time.December: "декабря",
+}
 
 // CartLine — строка корзины для рендера.
 type CartLine struct {
@@ -152,16 +246,30 @@ var catalog = []Product{
 var workshops = []Workshop{
 	{
 		ID: "ws-dry", Title: "Сухое валяние: брелок за три часа",
-		Date: "суббота, 20 сентября, 12:00", Duration: "3 часа", Price: 2500, Seats: 4,
+		Weekday: time.Saturday, Hour: 12, Duration: "3 часа",
+		Price: 2500, Seats: 2, SeatsTotal: 6, CompareID: "kc-mouse",
 		Summary:  "Разбираем, почему шерсть вообще сцепляется, и валяем первую фигурку от ленты до карабина.",
 		Takeaway: "Уносите свой брелок и набор игл",
 	},
 	{
 		ID: "ws-wet", Title: "Мокрое валяние: шарф-паутинка",
-		Date: "воскресенье, 28 сентября, 11:00", Duration: "5 часов", Price: 4500, Seats: 3,
+		Weekday: time.Sunday, Hour: 11, Duration: "5 часов",
+		Price: 4500, Seats: 1, SeatsTotal: 4, CompareID: "sc-frost",
 		Summary:  "Раскладка руна, мыльный раствор, притирка и валка. Длинно, мокро и очень медитативно.",
 		Takeaway: "Уносите готовый шарф 150 см",
 	},
+}
+
+// stockLeft — сколько изделий ещё можно купить. Вещи в одном экземпляре,
+// поэтому цифра честная и работает лучше любого «успей купить».
+func stockLeft() (left, total int) {
+	for _, p := range catalog {
+		total++
+		if p.InStock {
+			left++
+		}
+	}
+	return
 }
 
 func productByID(id string) (Product, bool) {
@@ -327,28 +435,33 @@ type Server struct {
 }
 
 type pageData struct {
-	Viewer    Viewer
-	Products  []Product
-	Workshops []Workshop
-	Category  string
-	CartLines []CartLine
-	CartCount int
-	CartSum   string
-	CartEmpty bool
+	Viewer     Viewer
+	StockLeft  int
+	StockTotal int
+	Products   []Product
+	Workshops  []Workshop
+	Category   string
+	CartLines  []CartLine
+	CartCount  int
+	CartSum    string
+	CartEmpty  bool
 }
 
 func (s *Server) page(v Viewer, cat string) pageData {
 	lines := s.carts.Lines(v.Ref)
 	count, sum := s.carts.Total(v.Ref)
+	left, total := stockLeft()
 	return pageData{
-		Viewer:    v,
-		Products:  filterCatalog(cat),
-		Workshops: workshops,
-		Category:  cat,
-		CartLines: lines,
-		CartCount: count,
-		CartSum:   formatRub(sum),
-		CartEmpty: len(lines) == 0,
+		Viewer:     v,
+		StockLeft:  left,
+		StockTotal: total,
+		Products:   filterCatalog(cat),
+		Workshops:  workshops,
+		Category:   cat,
+		CartLines:  lines,
+		CartCount:  count,
+		CartSum:    formatRub(sum),
+		CartEmpty:  len(lines) == 0,
 	}
 }
 
