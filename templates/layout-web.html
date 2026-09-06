@@ -6,6 +6,7 @@
 <html lang="ru">
 <head>{{template "head" .}}</head>
 <body>
+{{template "art-defs" .}}
 
 <a class="skip" href="#catalog">К каталогу</a>
 
@@ -20,7 +21,10 @@
 <main>
   {{template "hero" .}}
   {{template "catalog-section" .}}
+  {{template "process-section" .}}
   {{template "workshops-section" .}}
+  {{template "maker-section" .}}
+  {{template "trust-section" .}}
 </main>
 
 <footer class="foot">

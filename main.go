@@ -36,8 +36,11 @@ type Product struct {
 	Technique string
 	Price     int // в рублях, целыми
 	Blurb     string
-	Wool      string // основной цвет войлока (hex) — им рисуется SVG-свалок
+	Wool      string // основной цвет войлока (hex) — им рисуется иллюстрация
 	Accent    string // цвет крапа/деталей
+	Art       string // имя иллюстрации в art.html: fox, loaf, owl, mouse, hedgehog, moss, cobweb, stole, bactus
+	Size      string // «7 см», «160 × 28 см»
+	Material  string // «меринос 18 мкм», «кардочёс»
 	InStock   bool
 }
 
@@ -191,55 +194,64 @@ var catalog = []Product{
 		ID: "kc-fox", Title: "Лисёнок", Category: "keychain",
 		Technique: "Сухое валяние", Price: 890,
 		Blurb: "Семь сантиметров, набит шерстью целиком, хвост держит форму без каркаса.",
-		Wool:  "#B4552E", Accent: "#F0EBE1", InStock: true,
+		Wool:  "#B4552E", Accent: "#F0EBE1",
+		Art: "fox", Size: "7 см", Material: "кардочёс, стеклянные бусины", InStock: true,
 	},
 	{
 		ID: "kc-cat", Title: "Кот-батон", Category: "keychain",
 		Technique: "Сухое валяние", Price: 850,
 		Blurb: "Длинный, слегка недовольный. Карабин вшит в загривок, не выдёргивается.",
-		Wool:  "#6E6A62", Accent: "#2E3A2B", InStock: true,
+		Wool:  "#6E6A62", Accent: "#2E3A2B",
+		Art: "loaf", Size: "9 см", Material: "кардочёс", InStock: true,
 	},
 	{
 		ID: "kc-owl", Title: "Совушка", Category: "keychain",
 		Technique: "Сухое валяние", Price: 780,
 		Blurb: "Глаза — стеклянные бусины на нитке, не отваливаются в кармане.",
-		Wool:  "#8A7A54", Accent: "#E8DFC8", InStock: true,
+		Wool:  "#8A7A54", Accent: "#E8DFC8",
+		Art: "owl", Size: "6 см", Material: "кардочёс, стеклянные бусины", InStock: true,
 	},
 	{
 		ID: "kc-mouse", Title: "Мышь с сыром", Category: "keychain",
 		Technique: "Сухое валяние", Price: 920,
 		Blurb: "Сыр снимается — под ним ещё одна мышь. Так вышло случайно, оставила.",
-		Wool:  "#9C9288", Accent: "#C9A227", InStock: true,
+		Wool:  "#9C9288", Accent: "#C9A227",
+		Art: "mouse", Size: "5 см + сыр", Material: "кардочёс", InStock: true,
 	},
 	{
 		ID: "kc-hedgehog", Title: "Ёжик", Category: "keychain",
 		Technique: "Сухое валяние", Price: 800,
 		Blurb: "Иголки из жёсткой новозеландской шерсти, поэтому колется по-настоящему.",
-		Wool:  "#4A4239", Accent: "#D8C9A8", InStock: false,
+		Wool:  "#4A4239", Accent: "#D8C9A8",
+		Art: "hedgehog", Size: "6 см", Material: "кардочёс, новозеландская шерсть", InStock: false,
 	},
 	{
 		ID: "sc-moss", Title: "Северный мох", Category: "scarf",
 		Technique: "Мокрое валяние", Price: 5400,
 		Blurb: "Меринос 18 микрон, 160 см. Плотный, держит форму на плечах, не сползает.",
-		Wool:  "#4A5D3F", Accent: "#8C9E6E", InStock: true,
+		Wool:  "#4A5D3F", Accent: "#8C9E6E",
+		Art: "moss", Size: "160 × 28 см", Material: "меринос 18 мкм", InStock: true,
 	},
 	{
 		ID: "sc-frost", Title: "Паутинка «Иней»", Category: "scarf",
 		Technique: "Мокрое валяние", Price: 6200,
 		Blurb: "Просвечивает на солнце, весит 48 граммов. Проходит сквозь обручальное кольцо.",
-		Wool:  "#7E8CA0", Accent: "#E4E9EF", InStock: true,
+		Wool:  "#7E8CA0", Accent: "#E4E9EF",
+		Art: "cobweb", Size: "180 × 40 см", Material: "меринос 16 мкм, 48 г", InStock: true,
 	},
 	{
 		ID: "sc-madder", Title: "Палантин «Марена»", Category: "scarf",
 		Technique: "Мокрое валяние", Price: 7800,
 		Blurb: "Шерсть крашена корнем марены, поэтому цвет неровный и живой.",
-		Wool:  "#7C3247", Accent: "#C88A97", InStock: true,
+		Wool:  "#7C3247", Accent: "#C88A97",
+		Art: "stole", Size: "200 × 70 см", Material: "меринос 18 мкм, крашен мареной", InStock: true,
 	},
 	{
 		ID: "sc-ochre", Title: "Бактус «Охра»", Category: "scarf",
 		Technique: "Мокрое валяние", Price: 3900,
 		Blurb: "Треугольный, короткий. Носится под пальто, узлом вперёд.",
-		Wool:  "#B07C2A", Accent: "#EBD9AE", InStock: true,
+		Wool:  "#B07C2A", Accent: "#EBD9AE",
+		Art: "bactus", Size: "140 × 45 см", Material: "меринос 18 мкм", InStock: true,
 	},
 }
 

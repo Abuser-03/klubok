@@ -1,6 +1,5 @@
 {{/*
-  Сетка товаров. Отдаётся и в составе страницы, и отдельно на фильтр —
-  htmx подменяет ей содержимое секции.
+  Сетка товаров. Отдаётся и в составе страницы, и отдельно на фильтр.
 
   data-id нужен скриптам: по нему при смене фильтра карточки узнают свои
   прежние позиции и переезжают на новые плавно, а не перескакивают.
@@ -12,23 +11,29 @@
       data-id="{{.ID}}" data-reveal>
 
     <div class="card__art" data-art>
-      {{if eq .Category "scarf"}}{{template "art-scarf" .}}{{else}}{{template "art-keychain" .}}{{end}}
+      {{template "art" .}}
+      {{if not .InStock}}<span class="card__sold">Продано</span>{{end}}
     </div>
 
     <div class="card__body">
-      <h3 class="card__title">{{.Title}}</h3>
-      <p class="card__tech">{{.Technique}}</p>
-      <p class="card__blurb">{{.Blurb}}</p>
-      <div class="card__foot">
+      <div class="card__top">
+        <h3 class="card__title">{{.Title}}</h3>
         <span class="card__price">{{.PriceFmt}}</span>
+      </div>
+      <p class="card__spec">{{.Technique}} · {{.Size}}</p>
+      <p class="card__blurb">{{.Blurb}}</p>
+      <p class="card__material">{{.Material}}</p>
+
+      <div class="card__foot">
         {{if .InStock}}
         <button class="btn btn--small" type="button"
                 hx-post="/cart/add/{{.ID}}"
                 hx-target="#cart-panel"
                 hx-swap="outerHTML"
                 data-add>В корзину</button>
+        <span class="card__one">1 из 1</span>
         {{else}}
-        <span class="card__gone">Уже уехал к хозяину</span>
+        <span class="card__gone">Уехал к хозяйке</span>
         {{end}}
       </div>
     </div>

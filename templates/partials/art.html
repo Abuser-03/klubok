@@ -1,47 +1,257 @@
 {{/*
-  Рисунки товаров.
+  Иллюстрации изделий.
 
-  Настоящих фотографий нет, поэтому каждому изделию рисуется свой войлочный
-  свалок в его цветах: .Wool — основная шерсть, .Accent — крап и детали.
+  Фотографий нет, поэтому каждое изделие нарисовано — но не абстрактным
+  кружком с глазами, а своим силуэтом: у лисы хвост, у кота-батона длинное
+  тело, у совы огромные глаза. Покупательница должна узнать вещь по картинке,
+  а не по подписи.
 
-  Вынесено из grid.html намеренно. Координаты безье нечитаемы и меняются
-  редко, а разметка карточки — наоборот, поэтому им не место в одном файле.
-  Когда появятся настоящие фото, обе заглушки заменяются на <img> здесь,
-  и grid.html не трогается вообще.
+  Как это устроено:
+  · «art-defs» — общие определения: фильтр войлочной фактуры и мягкий блик.
+    Подключается один раз в макете, дальше все рисунки ссылаются на него.
+  · «art-<имя>» — одна иллюстрация. Цвета берёт из .Wool и .Accent изделия.
+  · «art» — диспетчер: по полю .Art изделия выбирает нужную. В grid.html
+    остаётся одна строка.
 
-  Класс fibre на волосках нужен скриптам: при наведении на карточку они
-  шевелятся отдельно от основной формы.
+  Чтобы добавить изделие: нарисовать «art-<имя>» здесь, добавить ветку
+  в диспетчер, указать Art в каталоге. Три места, все очевидные.
+
+  Фильтр #felt слегка рвёт край каждой фигуры шумом — так плоская заливка
+  начинает читаться как свалянная шерсть. Это главное, что отличает эти
+  рисунки от иконок.
 */}}
 
-{{define "art-keychain"}}
+{{define "art-defs"}}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="felt" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".055" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="felt-soft" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="3" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <radialGradient id="wool-light" cx="38%" cy="32%" r="60%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
+{{end}}
+
+
+{{define "art"}}
+{{if eq .Art "fox"}}{{template "art-fox" .}}
+{{else if eq .Art "loaf"}}{{template "art-loaf" .}}
+{{else if eq .Art "owl"}}{{template "art-owl" .}}
+{{else if eq .Art "mouse"}}{{template "art-mouse" .}}
+{{else if eq .Art "hedgehog"}}{{template "art-hedgehog" .}}
+{{else if eq .Art "moss"}}{{template "art-moss" .}}
+{{else if eq .Art "cobweb"}}{{template "art-cobweb" .}}
+{{else if eq .Art "stole"}}{{template "art-stole" .}}
+{{else if eq .Art "bactus"}}{{template "art-bactus" .}}
+{{else}}{{template "art-fallback" .}}{{end}}
+{{end}}
+
+
+{{/* Колечко брелка — общее для всех фигурок. */}}
+{{define "art-ring"}}
+<g stroke="#8B9083" stroke-width="3" fill="none" stroke-linecap="round">
+  <circle cx="120" cy="22" r="9"/>
+  <path d="M120 31 v 9"/>
+</g>
+{{end}}
+
+
+{{define "art-fox"}}
 <svg viewBox="0 0 240 180" aria-hidden="true">
-  <g data-body>
-    <path d="M120 30 a 14 14 0 1 1 -0.1 0" fill="none" stroke="{{.Accent}}" stroke-width="3.5" opacity=".8"/>
-    <path d="M120 44 l 0 14" stroke="{{.Accent}}" stroke-width="3" opacity=".8"/>
-    <path d="M120 58 C 168 58, 190 92, 182 122 C 174 152, 142 162, 120 162 C 98 162, 66 152, 58 122 C 50 92, 72 58, 120 58 Z" fill="{{.Wool}}"/>
-    <ellipse cx="103" cy="104" rx="9" ry="11" fill="{{.Accent}}" opacity=".75"/>
-    <ellipse cx="139" cy="104" rx="9" ry="11" fill="{{.Accent}}" opacity=".75"/>
-    <path d="M108 130 q 12 10 26 0" fill="none" stroke="{{.Accent}}" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>
+  {{template "art-ring" .}}
+  <g filter="url(#felt)" data-body>
+    <path d="M78 148 C 58 138, 52 118, 66 106 C 78 96, 100 104, 104 120" fill="{{.Wool}}"/>
+    <path d="M72 138 C 60 128, 62 114, 74 110" fill="none" stroke="{{.Accent}}" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="128" cy="126" rx="42" ry="34" fill="{{.Wool}}"/>
+    <ellipse cx="128" cy="138" rx="24" ry="20" fill="{{.Accent}}"/>
+    <path d="M96 78 L 86 46 L 112 66 Z" fill="{{.Wool}}"/>
+    <path d="M160 78 L 170 46 L 144 66 Z" fill="{{.Wool}}"/>
+    <path d="M99 74 L 93 56 L 108 68 Z" fill="{{.Accent}}"/>
+    <path d="M157 74 L 163 56 L 148 68 Z" fill="{{.Accent}}"/>
+    <ellipse cx="128" cy="82" rx="34" ry="28" fill="{{.Wool}}"/>
+    <path d="M128 112 C 108 112, 98 100, 102 90 C 112 92, 144 92, 154 90 C 158 100, 148 112, 128 112 Z" fill="{{.Accent}}"/>
   </g>
-  <g stroke="{{.Wool}}" stroke-width="1.4" stroke-linecap="round" opacity=".6" data-fibres>
-    <path d="M62 96 l -12 -6"/><path d="M56 118 l -14 3"/><path d="M64 140 l -12 9"/>
-    <path d="M178 96 l 12 -6"/><path d="M184 118 l 14 3"/><path d="M176 140 l 12 9"/>
-    <path d="M120 162 l 2 14"/><path d="M98 158 l -4 13"/><path d="M142 158 l 5 13"/>
+  <ellipse cx="128" cy="82" rx="34" ry="28" fill="url(#wool-light)"/>
+  <ellipse cx="117" cy="80" rx="3.4" ry="4.2" fill="#2C2C2A"/>
+  <ellipse cx="139" cy="80" rx="3.4" ry="4.2" fill="#2C2C2A"/>
+  <path d="M124 96 L 132 96 L 128 101 Z" fill="#2C2C2A"/>
+</svg>
+{{end}}
+
+
+{{define "art-loaf"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  {{template "art-ring" .}}
+  <g filter="url(#felt)" data-body>
+    <path d="M56 128 C 56 96, 78 76, 118 76 L 168 76 C 194 76, 206 96, 206 116 C 206 138, 194 148, 176 148 L 76 148 C 62 148, 56 140, 56 128 Z" fill="{{.Wool}}"/>
+    <path d="M82 78 L 76 54 L 98 72 Z" fill="{{.Wool}}"/>
+    <path d="M124 78 L 132 54 L 108 72 Z" fill="{{.Wool}}"/>
+    <path d="M136 84 C 150 84, 158 96, 152 106" fill="none" stroke="{{.Accent}}" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+    <path d="M158 84 C 172 86, 180 100, 172 112" fill="none" stroke="{{.Accent}}" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+    <path d="M204 126 C 220 128, 224 146, 208 150 C 196 153, 186 146, 190 140" fill="none" stroke="{{.Wool}}" stroke-width="9" stroke-linecap="round"/>
+  </g>
+  <path d="M56 128 C 56 96, 78 76, 118 76 L 168 76 C 194 76, 206 96, 206 116 C 206 138, 194 148, 176 148 L 76 148 C 62 148, 56 140, 56 128 Z" fill="url(#wool-light)"/>
+  <path d="M86 104 q 6 -5 12 0" fill="none" stroke="#2C2C2A" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M106 104 q 6 -5 12 0" fill="none" stroke="#2C2C2A" stroke-width="2.2" stroke-linecap="round"/>
+  <ellipse cx="102" cy="114" rx="3" ry="2.2" fill="#B07C2A" opacity=".8"/>
+  <g stroke="#2C2C2A" stroke-width="1.2" stroke-linecap="round" opacity=".55">
+    <path d="M78 112 l -16 -3"/><path d="M78 118 l -16 3"/>
+    <path d="M126 112 l 16 -3"/><path d="M126 118 l 16 3"/>
   </g>
 </svg>
 {{end}}
 
-{{define "art-scarf"}}
+
+{{define "art-owl"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  {{template "art-ring" .}}
+  <g filter="url(#felt)" data-body>
+    <path d="M120 44 C 158 44, 176 74, 176 110 C 176 142, 152 158, 120 158 C 88 158, 64 142, 64 110 C 64 74, 82 44, 120 44 Z" fill="{{.Wool}}"/>
+    <path d="M86 56 L 80 38 L 98 50 Z" fill="{{.Wool}}"/>
+    <path d="M154 56 L 160 38 L 142 50 Z" fill="{{.Wool}}"/>
+    <path d="M72 100 C 62 116, 64 136, 74 146" fill="none" stroke="{{.Accent}}" stroke-width="6" stroke-linecap="round" opacity=".5"/>
+    <path d="M168 100 C 178 116, 176 136, 166 146" fill="none" stroke="{{.Accent}}" stroke-width="6" stroke-linecap="round" opacity=".5"/>
+    <circle cx="102" cy="88" r="22" fill="{{.Accent}}"/>
+    <circle cx="138" cy="88" r="22" fill="{{.Accent}}"/>
+    <path d="M120 122 C 110 122, 104 132, 112 138 C 120 130, 120 130, 128 138 C 136 132, 130 122, 120 122 Z" fill="{{.Accent}}" opacity=".7"/>
+  </g>
+  <path d="M120 44 C 158 44, 176 74, 176 110 C 176 142, 152 158, 120 158 C 88 158, 64 142, 64 110 C 64 74, 82 44, 120 44 Z" fill="url(#wool-light)"/>
+  <circle cx="102" cy="88" r="9" fill="#2C2C2A"/>
+  <circle cx="138" cy="88" r="9" fill="#2C2C2A"/>
+  <circle cx="105" cy="85" r="2.6" fill="#fff"/>
+  <circle cx="141" cy="85" r="2.6" fill="#fff"/>
+  <path d="M116 106 L 124 106 L 120 114 Z" fill="#B07C2A"/>
+</svg>
+{{end}}
+
+
+{{define "art-mouse"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  {{template "art-ring" .}}
+  <g filter="url(#felt)" data-body>
+    <path d="M148 150 L 208 150 L 192 96 Z" fill="{{.Accent}}"/>
+    <circle cx="178" cy="130" r="6" fill="#A5831C" opacity=".6"/>
+    <circle cx="192" cy="142" r="3.5" fill="#A5831C" opacity=".6"/>
+    <circle cx="186" cy="114" r="3" fill="#A5831C" opacity=".6"/>
+    <path d="M50 118 C 50 96, 72 84, 100 84 C 126 84, 144 100, 140 128 C 138 144, 120 152, 96 152 C 66 152, 50 138, 50 118 Z" fill="{{.Wool}}"/>
+    <circle cx="70" cy="80" r="17" fill="{{.Wool}}"/>
+    <circle cx="106" cy="76" r="17" fill="{{.Wool}}"/>
+    <circle cx="70" cy="80" r="10" fill="#E8B4B8" opacity=".55"/>
+    <circle cx="106" cy="76" r="10" fill="#E8B4B8" opacity=".55"/>
+    <path d="M138 138 C 160 132, 168 150, 152 160" fill="none" stroke="{{.Wool}}" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <path d="M50 118 C 50 96, 72 84, 100 84 C 126 84, 144 100, 140 128 C 138 144, 120 152, 96 152 C 66 152, 50 138, 50 118 Z" fill="url(#wool-light)"/>
+  <ellipse cx="66" cy="112" rx="3" ry="3.6" fill="#2C2C2A"/>
+  <circle cx="52" cy="122" r="3.2" fill="#E8B4B8"/>
+  <g stroke="#2C2C2A" stroke-width="1.1" stroke-linecap="round" opacity=".5">
+    <path d="M52 118 l -14 -6"/><path d="M52 126 l -14 4"/>
+  </g>
+</svg>
+{{end}}
+
+
+{{define "art-hedgehog"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  {{template "art-ring" .}}
+  <g filter="url(#felt)" data-body>
+    <path d="M62 132 C 56 104, 78 76, 116 74 C 158 72, 186 96, 184 130 C 182 148, 166 154, 140 154 L 84 154 C 68 154, 62 146, 62 132 Z" fill="{{.Wool}}"/>
+    <g fill="{{.Wool}}">
+      <path d="M78 88 L 66 62 L 92 78 Z"/><path d="M96 78 L 90 50 L 112 72 Z"/>
+      <path d="M116 74 L 118 44 L 134 72 Z"/><path d="M136 74 L 146 46 L 154 74 Z"/>
+      <path d="M156 80 L 172 56 L 170 84 Z"/><path d="M172 94 L 192 78 L 182 100 Z"/>
+    </g>
+    <path d="M40 140 C 40 124, 52 112, 70 112 C 88 112, 94 128, 90 142 C 86 152, 72 156, 58 154 C 46 152, 40 148, 40 140 Z" fill="{{.Accent}}"/>
+  </g>
+  <path d="M62 132 C 56 104, 78 76, 116 74 C 158 72, 186 96, 184 130 C 182 148, 166 154, 140 154 L 84 154 C 68 154, 62 146, 62 132 Z" fill="url(#wool-light)"/>
+  <ellipse cx="60" cy="130" rx="3" ry="3.6" fill="#2C2C2A"/>
+  <circle cx="42" cy="140" r="3.6" fill="#2C2C2A"/>
+</svg>
+{{end}}
+
+
+{{/* Шарфы: мягче фильтр, потому что войлок тут тонкий и гладкий. */}}
+
+{{define "art-moss"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  <g filter="url(#felt-soft)" data-body>
+    <path d="M40 66 C 80 40, 130 44, 170 62 C 200 76, 212 100, 200 122 C 186 148, 140 156, 96 148 C 60 142, 34 120, 40 96 Z" fill="{{.Wool}}"/>
+    <path d="M62 84 C 96 66, 136 68, 166 84 C 186 96, 190 110, 178 122 C 160 138, 118 142, 86 132 C 62 124, 50 106, 62 84 Z" fill="{{.Accent}}" opacity=".25"/>
+    <path d="M80 104 C 106 92, 136 92, 160 104" fill="none" stroke="{{.Accent}}" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+  </g>
+  <path d="M40 66 C 80 40, 130 44, 170 62 C 200 76, 212 100, 200 122 C 186 148, 140 156, 96 148 C 60 142, 34 120, 40 96 Z" fill="url(#wool-light)"/>
+  <g fill="{{.Accent}}" opacity=".7">
+    <circle cx="90" cy="76" r="2.2"/><circle cx="118" cy="68" r="1.8"/><circle cx="150" cy="74" r="2.4"/>
+    <circle cx="176" cy="96" r="2"/><circle cx="160" cy="126" r="2.2"/><circle cx="112" cy="136" r="1.8"/>
+    <circle cx="74" cy="120" r="2.4"/><circle cx="58" cy="94" r="1.8"/><circle cx="132" cy="112" r="2"/>
+  </g>
+</svg>
+{{end}}
+
+
+{{define "art-cobweb"}}
 <svg viewBox="0 0 240 180" aria-hidden="true">
   <g data-body>
-    <path d="M28 44 C 70 26, 110 62, 152 44 S 218 30, 226 58 L 226 108 C 190 96, 150 128, 108 112 S 42 100, 28 122 Z" fill="{{.Wool}}"/>
-    <path d="M28 44 C 70 26, 110 62, 152 44 S 218 30, 226 58" fill="none" stroke="{{.Accent}}" stroke-width="3" opacity=".55"/>
-    <path d="M34 74 C 74 58, 116 92, 158 74 S 214 62, 224 86" fill="none" stroke="{{.Accent}}" stroke-width="2" opacity=".4"/>
-    <path d="M30 100 C 72 84, 112 118, 154 100 S 216 88, 226 110" fill="none" stroke="{{.Accent}}" stroke-width="2" opacity=".3"/>
+    <path d="M30 60 C 70 36, 110 66, 150 46 C 180 32, 206 50, 212 74 L 212 118 C 182 138, 146 116, 110 136 C 78 154, 46 138, 30 122 Z" fill="{{.Wool}}" opacity=".28" filter="url(#felt-soft)"/>
+    <g fill="none" stroke="{{.Wool}}" stroke-width=".9" opacity=".55">
+      <path d="M40 70 C 80 52, 120 78, 160 58 S 200 52, 206 76"/>
+      <path d="M38 88 C 78 70, 118 96, 158 76 S 198 70, 208 94"/>
+      <path d="M36 106 C 76 88, 116 114, 156 94 S 196 88, 210 112"/>
+      <path d="M60 60 C 62 84, 58 108, 60 128"/>
+      <path d="M96 66 C 98 90, 94 114, 96 136"/>
+      <path d="M132 58 C 134 82, 130 106, 132 128"/>
+      <path d="M168 50 C 170 74, 166 98, 168 122"/>
+      <path d="M196 56 C 198 78, 194 100, 196 122"/>
+    </g>
+    <g fill="{{.Accent}}">
+      <circle cx="78" cy="78" r="1.6"/><circle cx="114" cy="86" r="1.4"/><circle cx="150" cy="70" r="1.6"/>
+      <circle cx="184" cy="88" r="1.4"/><circle cx="70" cy="112" r="1.4"/><circle cx="140" cy="106" r="1.6"/>
+    </g>
   </g>
-  <g stroke="{{.Wool}}" stroke-width="1.4" stroke-linecap="round" opacity=".55" data-fibres>
-    <path d="M46 122 l -6 16"/><path d="M76 128 l 3 17"/><path d="M108 116 l -4 18"/>
-    <path d="M140 122 l 5 16"/><path d="M172 118 l -3 17"/><path d="M204 110 l 4 18"/>
+</svg>
+{{end}}
+
+
+{{define "art-stole"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  <g filter="url(#felt-soft)" data-body>
+    <path d="M28 52 L 212 44 L 216 130 L 32 140 Z" fill="{{.Wool}}"/>
+    <path d="M28 52 C 60 60, 72 100, 40 140 L 32 140 Z" fill="{{.Wool}}" opacity=".9"/>
+    <g fill="{{.Accent}}" opacity=".22">
+      <ellipse cx="90" cy="80" rx="26" ry="14"/><ellipse cx="160" cy="70" rx="20" ry="12"/>
+      <ellipse cx="128" cy="112" rx="30" ry="12"/><ellipse cx="184" cy="108" rx="16" ry="10"/>
+    </g>
+    <path d="M40 140 C 80 124, 120 134, 160 120 C 184 112, 204 122, 216 130" fill="none" stroke="{{.Accent}}" stroke-width="3" stroke-linecap="round" opacity=".5"/>
   </g>
+  <path d="M28 52 L 212 44 L 216 130 L 32 140 Z" fill="url(#wool-light)"/>
+</svg>
+{{end}}
+
+
+{{define "art-bactus"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  <g filter="url(#felt-soft)" data-body>
+    <path d="M40 50 L 200 50 L 124 150 Z" fill="{{.Wool}}"/>
+    <path d="M40 50 C 60 44, 84 50, 96 48 L 100 60 L 46 62 Z" fill="{{.Wool}}"/>
+    <path d="M200 50 C 180 44, 156 50, 144 48 L 140 60 L 194 62 Z" fill="{{.Wool}}"/>
+    <path d="M60 64 L 180 64 L 124 136 Z" fill="{{.Accent}}" opacity=".22"/>
+    <path d="M70 72 C 96 74, 124 78, 170 72" fill="none" stroke="{{.Accent}}" stroke-width="2.5" stroke-linecap="round" opacity=".45"/>
+    <path d="M86 92 C 106 94, 124 98, 154 92" fill="none" stroke="{{.Accent}}" stroke-width="2.5" stroke-linecap="round" opacity=".45"/>
+  </g>
+  <path d="M40 50 L 200 50 L 124 150 Z" fill="url(#wool-light)"/>
+</svg>
+{{end}}
+
+
+{{define "art-fallback"}}
+<svg viewBox="0 0 240 180" aria-hidden="true">
+  <ellipse cx="120" cy="96" rx="52" ry="40" fill="{{.Wool}}" filter="url(#felt)" data-body/>
 </svg>
 {{end}}

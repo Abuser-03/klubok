@@ -9,6 +9,7 @@
 <html lang="ru">
 <head>{{template "head" .}}</head>
 <body class="tg">
+{{template "art-defs" .}}
 
 <header class="tgbar">
   <span class="tgbar__greet">{{if .Viewer.Name}}{{.Viewer.Name}}, здесь{{else}}Здесь{{end}} всё в одном экземпляре</span>
@@ -21,6 +22,7 @@
 <main>
   {{template "catalog-section" .}}
   {{template "workshops-section" .}}
+  {{template "trust-section" .}}
 </main>
 
 {{template "cart.html" .}}

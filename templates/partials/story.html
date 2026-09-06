@@ -1,0 +1,131 @@
+{{/*
+  Секции, которые продают не вещь, а доверие: как она делается, кто делает,
+  что будет после покупки. Для хендмейда это половина решения о покупке —
+  человек покупает у человека.
+*/}}
+
+
+{{/*
+  Процесс. Три шага с маленькими рисунками. Порядок здесь настоящий,
+  поэтому нумерация уместна: это последовательность, а не список.
+*/}}
+{{define "process-section"}}
+  <section class="process">
+    <div class="process__lead">
+      <h2 class="h2">Как рождается вещь</h2>
+      <p>От расчёсанной ленты до готового изделия проходит от трёх часов до двух дней. Ни клея, ни ниток, ни каркаса — только шерсть и терпение.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step" data-reveal>
+        <svg class="step__art" viewBox="0 0 120 80" aria-hidden="true">
+          <g fill="none" stroke="#7C3247" stroke-width="2.2" stroke-linecap="round" opacity=".85">
+            <path d="M14 22 C 34 16, 54 30, 74 22 S 100 16, 108 24"/>
+            <path d="M12 36 C 32 30, 52 44, 72 36 S 98 30, 106 38"/>
+            <path d="M14 50 C 34 44, 54 58, 74 50 S 100 44, 108 52"/>
+            <path d="M16 64 C 36 58, 56 72, 76 64 S 102 58, 110 66"/>
+          </g>
+        </svg>
+        <h3 class="step__title">Расчёсывание</h3>
+        <p class="step__text">Шерсть чешется в ленту, волокно к волокну. Цвета смешиваются здесь же — мох с охрой, марена с индиго.</p>
+      </li>
+
+      <li class="step" data-reveal>
+        <svg class="step__art" viewBox="0 0 120 80" aria-hidden="true">
+          <ellipse cx="60" cy="52" rx="30" ry="20" fill="#B4552E" opacity=".85" filter="url(#felt)"/>
+          <path d="M60 4 L 60 44" stroke="#8C8A82" stroke-width="2" stroke-linecap="round"/>
+          <rect x="55" y="2" width="10" height="16" rx="3" fill="#4A5D3F"/>
+          <g stroke="#6E6C64" stroke-width="1.2" stroke-linecap="round"><path d="M60 32 l -3 2"/><path d="M60 38 l 3 2"/></g>
+        </svg>
+        <h3 class="step__title">Валяние</h3>
+        <p class="step__text">Игла с зазубринами тысячи раз входит в ком и тащит волокна внутрь. Ком уплотняется и держит форму сам.</p>
+      </li>
+
+      <li class="step" data-reveal>
+        <svg class="step__art" viewBox="0 0 120 80" aria-hidden="true">
+          <ellipse cx="52" cy="48" rx="24" ry="19" fill="#B4552E" filter="url(#felt)"/>
+          <ellipse cx="52" cy="54" rx="13" ry="10" fill="#F0EBE1" filter="url(#felt)"/>
+          <path d="M36 32 L 30 16 L 44 26 Z" fill="#B4552E"/>
+          <path d="M68 32 L 74 16 L 60 26 Z" fill="#B4552E"/>
+          <ellipse cx="46" cy="44" rx="2" ry="2.4" fill="#2C2C2A"/>
+          <ellipse cx="58" cy="44" rx="2" ry="2.4" fill="#2C2C2A"/>
+          <circle cx="98" cy="22" r="7" fill="none" stroke="#8B9083" stroke-width="2.4"/>
+          <path d="M98 29 v 7" stroke="#8B9083" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+        <h3 class="step__title">Отделка</h3>
+        <p class="step__text">Глаза из стеклянных бусин, вшитый карабин, подрезка ворса. Вещь готова уехать.</p>
+      </li>
+    </ol>
+  </section>
+{{end}}
+
+
+{{/*
+  Автор. Единственная секция от первого лица.
+
+  Портрет: сейчас на его месте рисунок рабочего стола. Когда появится
+  настоящее фото, замените <svg class="maker__art"> на
+  <img class="maker__art" src="..." alt="..."> — стили подхватят как есть.
+*/}}
+{{define "maker-section"}}
+  <section class="maker">
+    <svg class="maker__art" viewBox="0 0 320 320" aria-hidden="true">
+      <rect width="320" height="320" rx="24" fill="#DDD9CF"/>
+      <rect x="28" y="196" width="264" height="18" rx="6" fill="#B4B2A9" opacity=".6"/>
+      <g filter="url(#felt)">
+        <ellipse cx="96" cy="178" rx="34" ry="24" fill="#7C3247" opacity=".9"/>
+        <ellipse cx="170" cy="184" rx="28" ry="20" fill="#4A5D3F" opacity=".9"/>
+        <ellipse cx="236" cy="180" rx="30" ry="22" fill="#B07C2A" opacity=".9"/>
+      </g>
+      <g stroke="#8C8A82" stroke-width="2.2" stroke-linecap="round">
+        <path d="M150 60 L 164 158"/><path d="M186 58 L 178 156"/>
+      </g>
+      <rect x="143" y="44" width="12" height="20" rx="4" fill="#4A5D3F" transform="rotate(-8 149 54)"/>
+      <rect x="181" y="42" width="12" height="20" rx="4" fill="#3B4C6B" transform="rotate(6 187 52)"/>
+      <g filter="url(#felt)">
+        <ellipse cx="72" cy="262" rx="22" ry="17" fill="#B4552E"/>
+        <ellipse cx="72" cy="267" rx="12" ry="9" fill="#F0EBE1"/>
+        <path d="M58 248 L 52 234 L 66 244 Z" fill="#B4552E"/>
+        <path d="M86 248 L 92 234 L 78 244 Z" fill="#B4552E"/>
+      </g>
+      <ellipse cx="66" cy="258" rx="1.8" ry="2.2" fill="#2C2C2A"/>
+      <ellipse cx="78" cy="258" rx="1.8" ry="2.2" fill="#2C2C2A"/>
+      <path d="M200 250 C 230 238, 262 252, 280 276" fill="none" stroke="#7E8CA0" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+    </svg>
+
+    <div class="maker__text">
+      <h2 class="h2">Кто валяет</h2>
+      <p>Меня зовут Настя, и вот уже шесть лет по вечерам я сижу за этим столом с иглой. Началось с одного брелка в подарок подруге — она носила его на ключах, пока не стёрлись глаза, и попросила второй. Второй я сделала лучше.</p>
+      <p>Шерсть беру у двух фермерских хозяйств под Нижним и крашу сама — мареной, луковой шелухой, индиго. Поэтому цвета неровные и живые, а двух одинаковых вещей не бывает физически.</p>
+      <p>Если хочется что-то своё — напишите. Я с удовольствием сваляю под вас, только предупрежу честно про сроки: быстрее двух недель не бывает.</p>
+
+      <ul class="maker__facts">
+        <li><strong>6 лет</strong><span>за иглой</span></li>
+        <li><strong>≈ 400</strong><span>вещей уехало</span></li>
+        <li><strong>2 хозяйства</strong><span>дают шерсть</span></li>
+      </ul>
+    </div>
+  </section>
+{{end}}
+
+
+{{/*
+  Что будет после покупки. Три вопроса, которые задают перед оплатой,
+  с ответами на месте — чтобы не пришлось писать и ждать.
+*/}}
+{{define "trust-section"}}
+  <section class="trust">
+    <div class="trust__item">
+      <h3 class="trust__title">Доставка</h3>
+      <p>Отправляю по России раз в неделю, по четвергам, Почтой или СДЭК. Брелок — в жёсткой коробочке, шарф — в тканевом мешке.</p>
+    </div>
+    <div class="trust__item">
+      <h3 class="trust__title">Уход</h3>
+      <p>Шарфы стираются руками в прохладной воде, сушатся горизонтально. Брелки не стираются вовсе: если запачкался — влажной губкой.</p>
+    </div>
+    <div class="trust__item">
+      <h3 class="trust__title">Если не подошло</h3>
+      <p>Обменяю или верну деньги в течение двух недель после получения, если вещь не ношена. Пересылку обратно оплачиваю я.</p>
+    </div>
+  </section>
+{{end}}

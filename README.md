@@ -33,20 +33,27 @@ go test -race -run TestCartStore ./...
 | `templates/partials/head.html` | общий `<head>` и подключение скриптов |
 | `templates/partials/sections.html` | хиро, каталог, мастер-классы |
 | `templates/partials/grid.html` | сетка товаров, она же ответ на фильтр |
-| `templates/partials/art.html` | SVG-заглушки вместо фотографий |
+| `templates/partials/art.html` | иллюстрации изделий: фильтр войлока, 9 силуэтов, диспетчер |
+| `templates/partials/felting.html` | интерактивная сцена валяния |
+| `templates/partials/story.html` | процесс, автор, доставка и уход |
 | `templates/partials/cart.html` | шторка корзины и OOB-счётчик |
 | `templates/partials/checkout.html` | подтверждение заказа |
 | `templates/partials/signup.html` | ответы формы записи |
 | `static/css/fonts.css` | локальные `@font-face`, кириллица и латиница раздельно |
 | `static/css/style.css` | палитра, типографика, сетка |
 | `static/css/tg.css` | правки только для Mini App |
-| `static/js/app.js` | анимации, шторка, Telegram SDK, htmx-хуки |
+| `static/js/core.js` | общее пространство имён, Telegram SDK, initData |
+| `static/js/cart.js` | шторка, полёт товара, счётчик суммы |
+| `static/js/catalog.js` | появление карточек, наклон, переезд при фильтре |
+| `static/js/felting.js` | сцена валяния |
+| `static/js/hero.js` | анимация первого экрана (только сайт) |
 | `static/js/vendor/` | htmx и GSAP локально, не с чужих CDN |
 | `static/fonts/` | woff2 Spectral и Golos Text, только нужные начертания |
 
 Где править что: товары и мастер-классы — срезы `catalog` и `workshops`
-в `main.go`, это единственное место с данными. Тексты — `sections.html`
-и `grid.html`. Подключить шрифт или библиотеку — `head.html`, обе витрины
+в `main.go`, это единственное место с данными. Тексты — `sections.html`,
+`story.html` и `grid.html`. Иллюстрации — `art.html`: чтобы добавить изделие,
+нарисовать `art-<имя>`, добавить ветку в диспетчер `art`, указать `Art` в каталоге. Подключить шрифт или библиотеку — `head.html`, обе витрины
 подхватят. Различия между сайтом и Mini App — `surface.go`.
 
 Имена шаблонов глобальны: `ParseFS` собирает их по маскам, и два
@@ -112,3 +119,21 @@ go test -race -run TestCartStore ./...
 Единственная внешняя ссылка осталась в `layout-tg.html` — SDK Telegram.
 Он нужен только внутри мессенджера, где домен Telegram по определению
 доступен, и на сайт не влияет.
+
+## Модули JS
+
+`core.js` обязан идти первым — создаёт `window.Klubok` с флагом `motion`,
+объектом Telegram и `haptic()`. Остальные модули — независимые IIFE, каждый
+сам подписывается на свои события (клики, `htmx:afterSwap`). Общего `init`
+нет: добавляя модуль, достаточно подключить его в `head.html`.
+
+## Иллюстрации
+
+Фильтр `#felt` (`feTurbulence` + `feDisplacementMap`) слегка рвёт края любой
+фигуры шумом — плоская заливка начинает читаться как войлок. Определён один
+раз в `art-defs`, подключается в начале `<body>` обоих макетов. Для шарфов
+есть мягкий вариант `#felt-soft`.
+
+Портрет автора в `story.html` — рисунок рабочего стола. Когда появится
+настоящее фото, `<svg class="maker__art">` заменяется на `<img>` с тем же
+классом, стили подхватят как есть.
