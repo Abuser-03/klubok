@@ -21,14 +21,20 @@
   <meta name="description" content="Брелки и шарфы из шерсти ручной валки. Каждая вещь в одном экземпляре. Мастер-классы по сухому и мокрому валянию.">
 {{end}}
 
-{{/* Шрифты грузятся НЕ блокируя отрисовку: media="print" заставляет браузер
-     не ждать этот файл, а onload переключает его на все носители, когда он
-     доедет. До подмены текст рисуется системным шрифтом из фолбэка. */}}
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
-      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=Golos+Text:wght@400;500;600&display=swap">
-
+{{/* Шрифты лежат на своём сервере. Google Fonts отвечает не из любой сети,
+     а когда он молчит, страница остаётся на системном шрифте — то есть
+     дизайн просто не появляется. Отдельным файлом, чтобы браузер кешировал
+     объявления шрифтов независимо от правок вёрстки. */}}
+<link rel="stylesheet" href="/static/css/fonts.css">
 <link rel="stylesheet" href="/static/css/style.css">
+
+{{/* Кириллица заголовков и текста нужна сразу — просим браузер начать
+     качать её, не дожидаясь, пока он дойдёт до этих правил в CSS.
+     Латиница и курсив не преднагружаются: они встречаются редко. */}}
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="/static/fonts/spectral-cyrillic-400-normal.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="/static/fonts/golos-text-cyrillic-400-normal.woff2">
 {{if .Viewer.IsTelegram}}<link rel="stylesheet" href="/static/css/tg.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>{{end}}
 {{end}}

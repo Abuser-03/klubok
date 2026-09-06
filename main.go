@@ -537,11 +537,12 @@ func main() {
 	mux.HandleFunc("POST /cart/remove/{id}", srv.handleCartRemove)
 	mux.HandleFunc("POST /checkout", srv.handleCheckout)
 	mux.HandleFunc("POST /workshop/signup", srv.handleWorkshopSignup)
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", staticHandler()))
 
 	addr := ":" + envOr("PORT", "8080")
 	log.Printf("Клубок слушает http://localhost%s", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	// Сжатие оборачивает всё разом: и шаблоны, и статику.
+	if err := http.ListenAndServe(addr, withGzip(mux)); err != nil {
 		log.Fatal(err)
 	}
 }
