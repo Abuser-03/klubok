@@ -1,4 +1,4 @@
-package main
+package klubok_2
 
 import (
 	"crypto/hmac"

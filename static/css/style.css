@@ -9,8 +9,8 @@
   --moss: #4a5d3f;
   --ochre: #b07c2a;
 
-  --sans: "Golos Text", system-ui, sans-serif;
-  --serif: "Spectral", Georgia, serif;
+  --sans: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Spectral", ui-serif, Georgia, "Times New Roman", serif;
 
   --pad: clamp(1.25rem, 5vw, 4rem);
   --ease: cubic-bezier(.22, .61, .36, 1);
