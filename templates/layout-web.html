@@ -1,22 +1,10 @@
+{{/*
+  Оболочка сайта. Всё содержимое живёт в партиалах — здесь только рама:
+  шапка, хиро и подвал, которых нет в Mini App.
+*/}}
 {{define "layout-web.html"}}<!DOCTYPE html>
 <html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Клубок — валяные брелки и шарфы</title>
-<meta name="description" content="Брелки и шарфы из шерсти ручной валки. Каждая вещь в одном экземпляре. Мастер-классы по сухому и мокрому валянию.">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Шрифты грузятся НЕ блокируя отрисовку: media="print" заставляет браузер
-     не ждать этот файл, а onload переключает его на все носители, когда он
-     доедет. Иначе страница стоит белой, пока Google Fonts не ответит —
-     а он отвечает не везде и не всегда. До подмены текст рисуется системным
-     шрифтом из фолбэка в style.css. -->
-<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
-      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=Golos+Text:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/static/css/style.css">
-
-</head>
+<head>{{template "head" .}}</head>
 <body>
 
 <a class="skip" href="#catalog">К каталогу</a>
@@ -30,38 +18,9 @@
 </header>
 
 <main>
-
-  <section class="hero">
-    <svg class="hero__fibres" viewBox="0 0 900 520" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
-      <g fill="none" stroke-linecap="round">
-        <path d="M-40 190 C 160 120, 300 250, 470 190 S 780 90, 950 170" stroke="#7C3247" stroke-width="2.5" opacity=".85"/>
-        <path d="M-40 232 C 180 170, 320 300, 500 236 S 790 140, 950 214" stroke="#4A5D3F" stroke-width="3.5" opacity=".7"/>
-        <path d="M-40 274 C 140 210, 340 340, 520 280 S 800 190, 950 262" stroke="#B07C2A" stroke-width="2" opacity=".8"/>
-        <path d="M-40 316 C 200 260, 300 380, 540 322 S 810 236, 950 306" stroke="#3B4C6B" stroke-width="4" opacity=".6"/>
-        <path d="M-40 358 C 160 300, 360 420, 560 366 S 820 282, 950 350" stroke="#8A7A54" stroke-width="1.5" opacity=".85"/>
-        <path d="M-40 400 C 220 344, 320 452, 580 408 S 830 330, 950 394" stroke="#7C3247" stroke-width="2.5" opacity=".45"/>
-      </g>
-    </svg>
-
-    <div class="hero__text">
-      <p class="hero__kicker">Сухое и мокрое валяние, Нижний Новгород</p>
-      <h1 class="hero__title">
-        <span class="line">Шерсть,</span>
-        <span class="line">сваленная</span>
-        <span class="line"><em>вручную</em></span>
-      </h1>
-      <p class="hero__lede">Брелки, шарфы и палантины. Каждая вещь существует в одном экземпляре — второй такой не будет, даже если очень попросить.</p>
-      <div class="hero__acts">
-        <a class="btn btn--solid" href="#catalog">Смотреть каталог</a>
-        <a class="btn btn--ghost" href="#workshops">Прийти валять самому</a>
-      </div>
-    </div>
-  </section>
-
+  {{template "hero" .}}
   {{template "catalog-section" .}}
-
   {{template "workshops-section" .}}
-
 </main>
 
 <footer class="foot">
@@ -72,13 +31,7 @@
 {{template "cart.html" .}}
 <div class="scrim" data-scrim hidden></div>
 
-<!-- Библиотеки лежат рядом, а не на чужих CDN: unpkg и cdnjs доступны
-     не из любой сети, и каждый их таймаут — это секунды перед тем, как
-     заработают корзина и анимации. 164 КБ отдаёт свой же сервер. -->
-<script src="/static/js/vendor/htmx.min.js"></script>
-<script src="/static/js/vendor/gsap.min.js"></script>
-<script src="/static/js/vendor/ScrollTrigger.min.js"></script>
-<script src="/static/js/app.js"></script>
+{{template "scripts" .}}
 </body>
 </html>
 {{end}}

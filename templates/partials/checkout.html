@@ -1,0 +1,20 @@
+{{/*
+  Подтверждение заказа. Занимает место корзины после оформления,
+  поэтому обязано нести тот же id и класс is-open — иначе шторка
+  захлопнется в момент подмены.
+*/}}
+{{define "checkout.html"}}
+<aside class="cart is-open" id="cart-panel" aria-label="Заказ оформлен" data-cart>
+  <div class="cart__head">
+    <h2 class="cart__title">Заказ принят</h2>
+    <button class="cart__close" type="button" data-close-cart aria-label="Закрыть">Закрыть</button>
+  </div>
+  <div class="cart__done">
+    <p class="cart__order">№ {{.OrderID}}</p>
+    <p>Заказ создан у нас в базе со статусом «ожидает оплаты» на сумму <strong>{{.Sum}}</strong>. Следующим шагом откроется окно оплаты.</p>
+    <p class="cart__hint">Как только платёжный шлюз подтвердит оплату, статус заказа поменяется сам, и вам придёт сообщение в Telegram.</p>
+  </div>
+</aside>
+
+<span class="bar__count" id="cart-count" data-count="0" hx-swap-oob="true"></span>
+{{end}}

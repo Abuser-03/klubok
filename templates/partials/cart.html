@@ -1,3 +1,10 @@
+{{/*
+  Корзина-шторка. Отдаётся целиком на любое изменение состава —
+  htmx подменяет её через hx-swap="outerHTML".
+
+  Счётчик в шапке едет тем же ответом отдельным элементом с hx-swap-oob:
+  так одним запросом обновляются два несвязанных места страницы.
+*/}}
 {{define "cart.html"}}
 <aside class="cart" id="cart-panel" aria-label="Корзина" data-cart>
   <div class="cart__head">
@@ -30,7 +37,9 @@
   </ul>
 
   <div class="cart__foot">
-    <p class="cart__total"><span>Итого</span><strong>{{.CartSum}}</strong></p>
+    {{/* data-total читают скрипты, чтобы доводить сумму счётчиком,
+         а не подменять число рывком. */}}
+    <p class="cart__total"><span>Итого</span><strong data-total>{{.CartSum}}</strong></p>
     <form hx-post="/checkout" hx-target="#cart-panel" hx-swap="outerHTML">
       <button class="btn btn--solid btn--block" type="submit">Оформить заказ</button>
     </form>
@@ -40,37 +49,4 @@
 </aside>
 
 <span class="bar__count" id="cart-count" data-count="{{.CartCount}}" hx-swap-oob="true">{{if .CartCount}}{{.CartCount}}{{end}}</span>
-{{end}}
-
-
-{{define "checkout.html"}}
-<aside class="cart is-open" id="cart-panel" aria-label="Заказ оформлен" data-cart>
-  <div class="cart__head">
-    <h2 class="cart__title">Заказ принят</h2>
-    <button class="cart__close" type="button" data-close-cart aria-label="Закрыть">Закрыть</button>
-  </div>
-  <div class="cart__done">
-    <p class="cart__order">№ {{.OrderID}}</p>
-    <p>Заказ создан у нас в базе со статусом «ожидает оплаты» на сумму <strong>{{.Sum}}</strong>. Следующим шагом откроется окно оплаты.</p>
-    <p class="cart__hint">Как только платёжный шлюз подтвердит оплату, статус заказа поменяется сам, и вам придёт сообщение в Telegram.</p>
-  </div>
-</aside>
-
-<span class="bar__count" id="cart-count" data-count="0" hx-swap-oob="true"></span>
-{{end}}
-
-
-{{define "signup-ok.html"}}
-<div class="note note--ok">
-  <p><strong>{{.Name}}, место за вами.</strong></p>
-  <p>Мастер-класс «{{.Workshop.Title}}», {{.Workshop.Date}}. Я напишу вам за день до начала и пришлю адрес.</p>
-</div>
-{{end}}
-
-
-{{define "signup-error.html"}}
-<div class="note note--bad">
-  <p>Заявка не ушла:</p>
-  <ul>{{range .Problems}}<li>{{.}}</li>{{end}}</ul>
-</div>
 {{end}}

@@ -24,12 +24,36 @@ go test -race -run TestCartStore ./...
 
 | Файл | Отвечает за |
 |---|---|
-| `main.go` | модель, каталог-заглушка, корзина, хендлеры, проверка `initData` |
+| `main.go` | модель, каталог-заглушка, корзина, хендлеры |
+| `surface.go` | разделение витрин: опознание, оболочка, оплата |
 | `main_test.go` | тесты подписи Telegram, корзины, форматирования цен |
-| `templates/layout.html` | страница целиком |
-| `templates/partials/grid.html` | сетка товаров (её же отдаём на фильтр) |
-| `templates/partials/cart.html` | корзина, чекаут, ответы формы записи |
-| `static/js/app.js` | GSAP, шторка корзины, Telegram SDK |
+| `templates/layout-web.html` | рама сайта: шапка, хиро, подвал |
+| `templates/layout-tg.html` | рама Mini App: без шапки, хиро и подвала |
+| `templates/partials/head.html` | общий `<head>` и подключение скриптов |
+| `templates/partials/sections.html` | хиро, каталог, мастер-классы |
+| `templates/partials/grid.html` | сетка товаров, она же ответ на фильтр |
+| `templates/partials/art.html` | SVG-заглушки вместо фотографий |
+| `templates/partials/cart.html` | шторка корзины и OOB-счётчик |
+| `templates/partials/checkout.html` | подтверждение заказа |
+| `templates/partials/signup.html` | ответы формы записи |
+| `static/css/style.css` | палитра, типографика, сетка |
+| `static/css/tg.css` | правки только для Mini App |
+| `static/js/app.js` | анимации, шторка, Telegram SDK, htmx-хуки |
+| `static/js/vendor/` | htmx и GSAP локально, не с чужих CDN |
+
+Где править что: товары и мастер-классы — срезы `catalog` и `workshops`
+в `main.go`, это единственное место с данными. Тексты — `sections.html`
+и `grid.html`. Подключить шрифт или библиотеку — `head.html`, обе витрины
+подхватят. Различия между сайтом и Mini App — `surface.go`.
+
+Имена шаблонов глобальны: `ParseFS` собирает их по маскам, и два
+`{{define}}` с одинаковым именем в разных файлах молча переопределят
+друг друга. Шаблоны, которые рендерит Go, сохраняют расширение в имени
+(`grid.html`), внутренние фрагменты — нет (`head`, `hero`, `art-scarf`).
+
+`templates/` вшиты в бинарник через `embed`, а `static/` читается с диска:
+правка шаблона требует пересборки, CSS и JS подхватываются перезапуском.
+Поэтому же в Dockerfile папка `static` копируется отдельной строкой.
 
 ## Как это устроено
 

@@ -1,0 +1,17 @@
+{{/*
+  Ответы формы записи на мастер-класс. Оба варианта садятся
+  в #signup-result внутри формы.
+*/}}
+{{define "signup-ok.html"}}
+<div class="note note--ok" data-note>
+  <p><strong>{{.Name}}, место за вами.</strong></p>
+  <p>Мастер-класс «{{.Workshop.Title}}», {{.Workshop.Date}}. Я напишу вам за день до начала и пришлю адрес.</p>
+</div>
+{{end}}
+
+{{define "signup-error.html"}}
+<div class="note note--bad" data-note>
+  <p>Заявка не ушла:</p>
+  <ul>{{range .Problems}}<li>{{.}}</li>{{end}}</ul>
+</div>
+{{end}}

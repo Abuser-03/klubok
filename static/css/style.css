@@ -79,6 +79,7 @@ body {
   transition: background .18s var(--ease), color .18s var(--ease);
 }
 .bar__cart:hover { background: var(--ink); color: var(--surface); }
+.bar__cart, .tgbar__cart { will-change: transform; }
 
 .bar__count {
   display: inline-grid;
@@ -213,6 +214,10 @@ body {
   border: 1px solid var(--rule);
   border-radius: 4px 4px 18px 18px;
   overflow: hidden;
+  /* Наклон под курсором считает GSAP; браузеру нужен 3D-контекст,
+     иначе rotateX/rotateY схлопнутся в плоскость. */
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 .card--wide { grid-column: span 2; }
 .card--gone { opacity: .55; }
@@ -223,8 +228,12 @@ body {
   padding: 1rem;
   background: color-mix(in srgb, var(--bg) 60%, var(--surface));
   border-bottom: 1px solid var(--rule);
+  /* Слои войлока смещаются под курсором сильнее самой карточки —
+     без обрезки волоски вылезали бы на текст. */
+  overflow: hidden;
 }
 .card__art svg { width: 100%; max-width: 15rem; height: auto; display: block; }
+.card__art [data-body], .card__art [data-fibres] { will-change: transform; }
 
 .card__body { display: flex; flex-direction: column; gap: .4rem; padding: 1.1rem 1.2rem 1.3rem; flex: 1; }
 
@@ -432,6 +441,8 @@ body {
 .flyer {
   position: fixed;
   z-index: 60;
+  width: 3rem;
+  height: 3rem;
   pointer-events: none;
   border-radius: 50%;
   will-change: transform, opacity;

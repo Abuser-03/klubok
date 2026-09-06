@@ -1,29 +1,15 @@
+{{/*
+  Оболочка Mini App.
+
+  Шапки сайта, хиро и подвала здесь нет намеренно: название, кнопку
+  «назад» и закрытие рисует сам Telegram, а человек приходит сюда уже
+  решившим — ему нужен товар, а не первый экран.
+*/}}
 {{define "layout-tg.html"}}<!DOCTYPE html>
 <html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Клубок</title>
-<meta name="robots" content="noindex">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Шрифты грузятся НЕ блокируя отрисовку: media="print" заставляет браузер
-     не ждать этот файл, а onload переключает его на все носители, когда он
-     доедет. Иначе страница стоит белой, пока Google Fonts не ответит —
-     а он отвечает не везде и не всегда. До подмены текст рисуется системным
-     шрифтом из фолбэка в style.css. -->
-<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
-      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=Golos+Text:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/static/css/style.css">
-<link rel="stylesheet" href="/static/css/tg.css">
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
+<head>{{template "head" .}}</head>
 <body class="tg">
 
-{{/* Шапки сайта здесь нет: название чата, кнопка «назад» и закрытие —
-     это нативный интерфейс Telegram, дублировать его значит съедать
-     и без того маленький экран. Остаётся только счётчик корзины. */}}
 <header class="tgbar">
   <span class="tgbar__greet">{{if .Viewer.Name}}{{.Viewer.Name}}, здесь{{else}}Здесь{{end}} всё в одном экземпляре</span>
   <button class="tgbar__cart" type="button" data-open-cart aria-label="Открыть корзину">
@@ -33,8 +19,6 @@
 </header>
 
 <main>
-  {{/* Хиро с анимацией нитей выброшен намеренно: в Mini App человек
-       приходит уже решившим, ему нужен товар, а не первый экран. */}}
   {{template "catalog-section" .}}
   {{template "workshops-section" .}}
 </main>
@@ -42,13 +26,7 @@
 {{template "cart.html" .}}
 <div class="scrim" data-scrim hidden></div>
 
-<!-- Библиотеки лежат рядом, а не на чужих CDN: unpkg и cdnjs доступны
-     не из любой сети, и каждый их таймаут — это секунды перед тем, как
-     заработают корзина и анимации. 164 КБ отдаёт свой же сервер. -->
-<script src="/static/js/vendor/htmx.min.js"></script>
-<script src="/static/js/vendor/gsap.min.js"></script>
-<script src="/static/js/vendor/ScrollTrigger.min.js"></script>
-<script src="/static/js/app.js"></script>
+{{template "scripts" .}}
 </body>
 </html>
 {{end}}

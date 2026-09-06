@@ -1,3 +1,39 @@
+{{/*
+  Хиро сайта. Нити шерсти прорисовываются на загрузке через
+  stroke-dashoffset и потом медленно плывут при скролле — это
+  единственный неспровоцированный пользователем момент движения
+  на всей странице.
+*/}}
+{{define "hero"}}
+  <section class="hero">
+    <svg class="hero__fibres" viewBox="0 0 900 520" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+      <g fill="none" stroke-linecap="round">
+        <path d="M-40 190 C 160 120, 300 250, 470 190 S 780 90, 950 170" stroke="#7C3247" stroke-width="2.5" opacity=".85"/>
+        <path d="M-40 232 C 180 170, 320 300, 500 236 S 790 140, 950 214" stroke="#4A5D3F" stroke-width="3.5" opacity=".7"/>
+        <path d="M-40 274 C 140 210, 340 340, 520 280 S 800 190, 950 262" stroke="#B07C2A" stroke-width="2" opacity=".8"/>
+        <path d="M-40 316 C 200 260, 300 380, 540 322 S 810 236, 950 306" stroke="#3B4C6B" stroke-width="4" opacity=".6"/>
+        <path d="M-40 358 C 160 300, 360 420, 560 366 S 820 282, 950 350" stroke="#8A7A54" stroke-width="1.5" opacity=".85"/>
+        <path d="M-40 400 C 220 344, 320 452, 580 408 S 830 330, 950 394" stroke="#7C3247" stroke-width="2.5" opacity=".45"/>
+      </g>
+    </svg>
+
+    <div class="hero__text">
+      <p class="hero__kicker">Сухое и мокрое валяние, Нижний Новгород</p>
+      <h1 class="hero__title">
+        <span class="line">Шерсть,</span>
+        <span class="line">сваленная</span>
+        <span class="line"><em>вручную</em></span>
+      </h1>
+      <p class="hero__lede">Брелки, шарфы и палантины. Каждая вещь существует в одном экземпляре — второй такой не будет, даже если очень попросить.</p>
+      <div class="hero__acts">
+        <a class="btn btn--solid" href="#catalog">Смотреть каталог</a>
+        <a class="btn btn--ghost" href="#workshops">Прийти валять самому</a>
+      </div>
+    </div>
+  </section>
+{{end}}
+
+
 {{define "catalog-section"}}
   <section class="catalog" id="catalog">
     <div class="catalog__head">

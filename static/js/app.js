@@ -1,11 +1,15 @@
 (function () {
   'use strict';
 
+  // Единственный переключатель на весь файл: при системной настройке
+  // «уменьшить движение» ни одна анимация не запускается, но всё
+  // остаётся рабочим.
   var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var motion = !calm && !!window.gsap;
 
-  // -------------------------------------------------------------------------
+  // =========================================================================
   // Telegram Mini App
-  // -------------------------------------------------------------------------
+  // =========================================================================
   var tg = window.Telegram && window.Telegram.WebApp;
 
   if (tg) {
@@ -13,15 +17,12 @@
     tg.expand();
 
     // initData прикладывается заголовком к КАЖДОМУ htmx-запросу, а не к
-    // одной форме: так бэкенд опознаёт человека на любом действии —
-    // добавлении в корзину, фильтре, чекауте, — и хендлерам не нужно
-    // знать, из какой витрины пришёл запрос.
+    // одной форме: так бэкенд опознаёт человека на любом действии, и
+    // хендлерам не нужно знать, из какой витрины пришёл запрос.
     document.body.addEventListener('htmx:configRequest', function (e) {
       if (tg.initData) e.detail.headers['Authorization'] = 'tma ' + tg.initData;
     });
 
-    // Нативная кнопка Telegram дублирует оформление заказа, когда корзина
-    // открыта — так пользователю не нужно искать кнопку внутри страницы.
     tg.MainButton.setText('Оформить заказ');
     tg.MainButton.onClick(function () {
       var form = document.querySelector('#cart-panel form');
@@ -31,15 +32,14 @@
 
   function syncMainButton() {
     if (!tg) return;
-    var open = document.querySelector('[data-cart]');
-    var hasForm = open && open.querySelector('form');
-    if (open && open.classList.contains('is-open') && hasForm) tg.MainButton.show();
+    var panel = document.querySelector('[data-cart]');
+    if (panel && panel.classList.contains('is-open') && panel.querySelector('form')) tg.MainButton.show();
     else tg.MainButton.hide();
   }
 
-  // -------------------------------------------------------------------------
+  // =========================================================================
   // Шторка корзины
-  // -------------------------------------------------------------------------
+  // =========================================================================
   var scrim = document.querySelector('[data-scrim]');
 
   function cart() { return document.querySelector('[data-cart]'); }
@@ -48,7 +48,10 @@
     var c = cart();
     if (!c) return;
     c.classList.add('is-open');
-    if (scrim) { scrim.hidden = false; requestAnimationFrame(function () { scrim.classList.add('is-on'); }); }
+    if (scrim) {
+      scrim.hidden = false;
+      requestAnimationFrame(function () { scrim.classList.add('is-on'); });
+    }
     syncMainButton();
   }
 
@@ -71,10 +74,10 @@
     if (e.key === 'Escape') closeCart();
   });
 
-  // -------------------------------------------------------------------------
-  // Фильтры каталога: активное состояние переключаем сами, htmx отвечает
-  // только за подмену сетки.
-  // -------------------------------------------------------------------------
+  // =========================================================================
+  // Фильтры: активное состояние переключаем сами, htmx отвечает только
+  // за подмену сетки.
+  // =========================================================================
   document.addEventListener('click', function (e) {
     var chip = e.target.closest('[data-chip]');
     if (!chip) return;
@@ -82,16 +85,63 @@
     chip.classList.add('is-on');
   });
 
-  // -------------------------------------------------------------------------
-  // Полёт товара в корзину — движение в ответ на действие, показывает,
-  // куда именно уехала вещь.
-  // -------------------------------------------------------------------------
+  // =========================================================================
+  // Наклон карточки под курсором
+  //
+  // Форма товара смещается сильнее, чем сама карточка, а волоски —
+  // сильнее формы. Разная скорость слоёв читается как глубина, поэтому
+  // войлок выглядит лежащим в коробке, а не напечатанным на ней.
+  // =========================================================================
+  var hovered = null;
+
+  function resetTilt(card) {
+    if (!card) return;
+    var art = card.querySelector('[data-art] svg');
+    gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out' });
+    if (art) {
+      gsap.to(art.querySelector('[data-body]'), { x: 0, y: 0, duration: 0.7, ease: 'power3.out' });
+      gsap.to(art.querySelector('[data-fibres]'), { x: 0, y: 0, duration: 0.9, ease: 'power3.out' });
+    }
+  }
+
+  document.addEventListener('pointermove', function (e) {
+    if (!motion || e.pointerType === 'touch') return;
+
+    var card = e.target.closest ? e.target.closest('.card') : null;
+
+    if (card !== hovered) {
+      resetTilt(hovered);
+      hovered = card;
+    }
+    if (!card) return;
+
+    var box = card.getBoundingClientRect();
+    var px = (e.clientX - box.left) / box.width - 0.5;
+    var py = (e.clientY - box.top) / box.height - 0.5;
+
+    gsap.to(card, {
+      rotateX: -py * 5,
+      rotateY: px * 6,
+      duration: 0.5,
+      ease: 'power2.out',
+      transformPerspective: 900
+    });
+
+    var art = card.querySelector('[data-art] svg');
+    if (!art) return;
+    gsap.to(art.querySelector('[data-body]'), { x: px * 12, y: py * 9, duration: 0.6, ease: 'power2.out' });
+    gsap.to(art.querySelector('[data-fibres]'), { x: px * 22, y: py * 16, duration: 0.8, ease: 'power2.out' });
+  });
+
+  // =========================================================================
+  // Полёт товара в корзину
+  // =========================================================================
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-add]');
-    if (!btn || calm || !window.gsap) return;
+    if (!btn || !motion) return;
 
     var art = btn.closest('.card').querySelector('[data-art] svg path[fill]');
-    var target = document.querySelector('.bar__cart');
+    var target = document.querySelector('.bar__cart, .tgbar__cart');
     if (!art || !target) return;
 
     var from = art.getBoundingClientRect();
@@ -100,27 +150,29 @@
     var dot = document.createElement('div');
     dot.className = 'flyer';
     dot.style.background = art.getAttribute('fill');
-    dot.style.width = dot.style.height = '3rem';
     dot.style.left = (from.left + from.width / 2 - 24) + 'px';
     dot.style.top = (from.top + from.height / 2 - 24) + 'px';
     document.body.appendChild(dot);
 
-    gsap.to(dot, {
-      x: to.left + to.width / 2 - (from.left + from.width / 2),
-      y: to.top + to.height / 2 - (from.top + from.height / 2),
-      scale: 0.25,
-      opacity: 0.2,
-      duration: 0.62,
-      ease: 'power2.in',
-      onComplete: function () { dot.remove(); }
-    });
+    gsap.timeline({ onComplete: function () { dot.remove(); } })
+      .to(dot, {
+        x: to.left + to.width / 2 - (from.left + from.width / 2),
+        y: to.top + to.height / 2 - (from.top + from.height / 2),
+        scale: 0.22,
+        opacity: 0.2,
+        duration: 0.62,
+        ease: 'power2.in'
+      })
+      // Счётчик коротко пружинит — подтверждение, что товар долетел.
+      .to(target, { scale: 1.14, duration: 0.14, ease: 'power2.out' }, '-=0.08')
+      .to(target, { scale: 1, duration: 0.32, ease: 'elastic.out(1, 0.45)' });
   });
 
-  // -------------------------------------------------------------------------
+  // =========================================================================
   // Появление карточек при скролле
-  // -------------------------------------------------------------------------
+  // =========================================================================
   function revealCards(scope) {
-    if (calm || !window.gsap || !window.ScrollTrigger) return;
+    if (!motion || !window.ScrollTrigger) return;
     var items = (scope || document).querySelectorAll('[data-reveal]:not(.is-shown)');
     if (!items.length) return;
 
@@ -135,18 +187,86 @@
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Один срежиссированный момент на загрузке: прорисовываются нити шерсти,
-  // затем поднимаются строки заголовка.
-  // -------------------------------------------------------------------------
+  // =========================================================================
+  // Переезд карточек при смене фильтра (FLIP)
+  //
+  // htmx заменяет сетку целиком, поэтому уцелевшие карточки перескакивают
+  // на новые места рывком. Запоминаем их координаты ДО подмены, после неё
+  // сажаем обратно трансформом и отпускаем — глазу видно, что карточка
+  // переехала, а не исчезла и появилась другая.
+  // =========================================================================
+  var before = null;
+
+  function snapshotGrid() {
+    before = new Map();
+    document.querySelectorAll('#grid [data-id]').forEach(function (el) {
+      before.set(el.dataset.id, el.getBoundingClientRect());
+    });
+  }
+
+  function playFlip() {
+    if (!before) return;
+    var cards = document.querySelectorAll('#grid [data-id]');
+
+    cards.forEach(function (el, i) {
+      el.classList.add('is-shown'); // чтобы revealCards их не перехватил
+      var prev = before.get(el.dataset.id);
+      var now = el.getBoundingClientRect();
+
+      if (prev) {
+        // Карточка была и осталась — довозим её со старого места.
+        gsap.fromTo(el,
+          { x: prev.left - now.left, y: prev.top - now.top },
+          { x: 0, y: 0, duration: 0.55, ease: 'power3.out' });
+      } else {
+        // Новая в этой категории — проявляется.
+        gsap.from(el, { opacity: 0, scale: 0.93, duration: 0.45, delay: i * 0.03, ease: 'power2.out' });
+      }
+    });
+
+    before = null;
+  }
+
+  // =========================================================================
+  // Сумма в корзине набегает, а не подменяется рывком
+  // =========================================================================
+  var lastTotal = 0;
+
+  function readTotal() {
+    var el = document.querySelector('[data-total]');
+    if (!el) return 0;
+    return parseInt(el.textContent.replace(/\D/g, ''), 10) || 0;
+  }
+
+  function countTotal() {
+    var el = document.querySelector('[data-total]');
+    if (!el) { lastTotal = 0; return; }
+
+    var to = readTotal();
+    if (!motion || to === lastTotal) { lastTotal = to; return; }
+
+    var box = { v: lastTotal };
+    gsap.to(box, {
+      v: to,
+      duration: 0.55,
+      ease: 'power2.out',
+      onUpdate: function () {
+        // Разряды разделяем неразрывным пробелом — тем же, что и на сервере,
+        // иначе число дёргалось бы по ширине на каждом кадре.
+        el.textContent = Math.round(box.v).toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0₽';
+      }
+    });
+    lastTotal = to;
+  }
+
+  // =========================================================================
+  // Хиро: нити прорисовываются на загрузке и плывут при скролле
+  // =========================================================================
   function playHero() {
     var fibres = document.querySelectorAll('.hero__fibres path');
     var lines = document.querySelectorAll('.hero__title .line');
-
-    if (calm || !window.gsap) {
-      gsap && gsap.set([fibres, lines], { clearProps: 'all' });
-      return;
-    }
+    if (!fibres.length || !motion) return;
 
     var tl = gsap.timeline();
 
@@ -155,60 +275,81 @@
       gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
     });
 
-    tl.to(fibres, {
-      strokeDashoffset: 0,
-      duration: 1.5,
-      stagger: 0.11,
-      ease: 'power1.inOut'
+    tl.to(fibres, { strokeDashoffset: 0, duration: 1.5, stagger: 0.11, ease: 'power1.inOut' })
+      .from(lines, { yPercent: 108, duration: 0.85, stagger: 0.08, ease: 'power3.out' }, '-=1.05')
+      .from('.hero__kicker, .hero__lede, .hero__acts',
+        { opacity: 0, y: 14, duration: 0.6, stagger: 0.09, ease: 'power2.out' }, '-=0.5');
+
+    if (!window.ScrollTrigger) return;
+
+    // Нити расходятся при прокрутке на разной скорости — за счёт этого
+    // клубок кажется объёмным, а не плоской картинкой позади текста.
+    fibres.forEach(function (p, i) {
+      gsap.to(p, {
+        y: (i % 2 ? 1 : -1) * (14 + i * 7),
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.7 }
+      });
     });
 
-    tl.from(lines, {
-      yPercent: 108,
-      duration: 0.85,
-      stagger: 0.08,
-      ease: 'power3.out'
-    }, '-=1.05');
-
-    tl.from('.hero__kicker, .hero__lede, .hero__acts', {
-      opacity: 0,
-      y: 14,
-      duration: 0.6,
-      stagger: 0.09,
-      ease: 'power2.out'
-    }, '-=0.5');
+    gsap.to('.hero__text', {
+      y: 48,
+      opacity: 0.35,
+      ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.5 }
+    });
   }
 
-  // -------------------------------------------------------------------------
-  // htmx: после каждой подмены восстанавливаем то, что живёт на клиенте.
-  // -------------------------------------------------------------------------
-  document.body.addEventListener('htmx:afterSwap', function (e) {
-    var id = e.detail.target && e.detail.target.id;
-
-    if (id === 'cart-panel' || (e.detail.target.closest && e.detail.target.closest('#cart-panel'))) {
-      // Панель заменилась целиком — класс открытости пришлось бы потерять.
-      openCart();
-    }
-
-    if (id === 'grid') revealCards(document.getElementById('grid'));
+  // =========================================================================
+  // htmx: восстанавливаем то, что живёт на клиенте
+  // =========================================================================
+  document.body.addEventListener('htmx:beforeSwap', function (e) {
+    var t = e.detail.target;
+    if (t && t.id === 'grid') snapshotGrid();
+    if (t && t.id === 'cart-panel') lastTotal = readTotal();
   });
 
-  // Ошибку сервера htmx по умолчанию не рисует — показываем её сами,
-  // иначе кнопка просто молча ничего не делает.
+  document.body.addEventListener('htmx:afterSwap', function (e) {
+    var t = e.detail.target;
+    if (!t) return;
+
+    if (t.id === 'grid') {
+      playFlip();
+      return;
+    }
+
+    if (t.id === 'cart-panel' || (t.closest && t.closest('#cart-panel'))) {
+      // Панель заменилась целиком — класс открытости пришлось бы потерять.
+      openCart();
+      countTotal();
+      if (motion) {
+        gsap.from('.cart__line', { opacity: 0, x: 24, duration: 0.4, stagger: 0.05, ease: 'power2.out' });
+      }
+    }
+  });
+
+  // Ответ формы записи проявляется — иначе неясно, что вообще что-то произошло.
+  document.body.addEventListener('htmx:afterSettle', function (e) {
+    if (!motion) return;
+    var note = e.detail.target && e.detail.target.querySelector('[data-note]');
+    if (note) gsap.from(note, { opacity: 0, y: -10, duration: 0.4, ease: 'power2.out' });
+  });
+
   document.body.addEventListener('htmx:responseError', function (e) {
     if (e.detail.xhr.status === 422) return; // это валидация, её рисует сервер
     var box = document.getElementById('signup-result');
     if (box) box.innerHTML = '<div class="note note--bad"><p>Сервер не ответил. Попробуйте ещё раз через минуту.</p></div>';
   });
 
-  // -------------------------------------------------------------------------
+  // =========================================================================
   playHero();
   revealCards();
   syncMainButton();
+  lastTotal = readTotal();
 
   // Первый GET страницы Mini App уходит до того, как выполнился этот скрипт,
   // то есть без заголовка с initData — сервер отвечает как анонимному гостю
-  // и рисует пустую корзину. Перезапрашиваем её уже подписанным запросом,
-  // иначе человек с товарами в корзине увидит «пока пусто».
+  // и рисует пустую корзину. Перезапрашиваем её уже подписанным запросом.
   if (tg && tg.initData && window.htmx) {
     htmx.ajax('GET', '/cart', { target: '#cart-panel', swap: 'outerHTML' });
   }

@@ -1,4 +1,4 @@
-package klubok_2
+package main
 
 import (
 	"encoding/json"

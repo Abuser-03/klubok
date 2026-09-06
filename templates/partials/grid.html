@@ -1,34 +1,18 @@
+{{/*
+  Сетка товаров. Отдаётся и в составе страницы, и отдельно на фильтр —
+  htmx подменяет ей содержимое секции.
+
+  data-id нужен скриптам: по нему при смене фильтра карточки узнают свои
+  прежние позиции и переезжают на новые плавно, а не перескакивают.
+*/}}
 {{define "grid.html"}}
 <ul class="grid" id="grid">
   {{range .Products}}
-  <li class="card{{if not .InStock}} card--gone{{end}}{{if eq .Category "scarf"}} card--wide{{end}}" data-reveal>
+  <li class="card{{if not .InStock}} card--gone{{end}}{{if eq .Category "scarf"}} card--wide{{end}}"
+      data-id="{{.ID}}" data-reveal>
+
     <div class="card__art" data-art>
-      {{if eq .Category "scarf"}}
-      <svg viewBox="0 0 240 180" aria-hidden="true">
-        <path d="M28 44 C 70 26, 110 62, 152 44 S 218 30, 226 58 L 226 108 C 190 96, 150 128, 108 112 S 42 100, 28 122 Z" fill="{{.Wool}}"/>
-        <path d="M28 44 C 70 26, 110 62, 152 44 S 218 30, 226 58" fill="none" stroke="{{.Accent}}" stroke-width="3" opacity=".55"/>
-        <path d="M34 74 C 74 58, 116 92, 158 74 S 214 62, 224 86" fill="none" stroke="{{.Accent}}" stroke-width="2" opacity=".4"/>
-        <path d="M30 100 C 72 84, 112 118, 154 100 S 216 88, 226 110" fill="none" stroke="{{.Accent}}" stroke-width="2" opacity=".3"/>
-        <g stroke="{{.Wool}}" stroke-width="1.4" stroke-linecap="round" opacity=".55">
-          <path d="M46 122 l -6 16"/><path d="M76 128 l 3 17"/><path d="M108 116 l -4 18"/>
-          <path d="M140 122 l 5 16"/><path d="M172 118 l -3 17"/><path d="M204 110 l 4 18"/>
-        </g>
-      </svg>
-      {{else}}
-      <svg viewBox="0 0 240 180" aria-hidden="true">
-        <path d="M120 30 a 14 14 0 1 1 -0.1 0" fill="none" stroke="{{.Accent}}" stroke-width="3.5" opacity=".8"/>
-        <path d="M120 44 l 0 14" stroke="{{.Accent}}" stroke-width="3" opacity=".8"/>
-        <path d="M120 58 C 168 58, 190 92, 182 122 C 174 152, 142 162, 120 162 C 98 162, 66 152, 58 122 C 50 92, 72 58, 120 58 Z" fill="{{.Wool}}"/>
-        <ellipse cx="103" cy="104" rx="9" ry="11" fill="{{.Accent}}" opacity=".75"/>
-        <ellipse cx="139" cy="104" rx="9" ry="11" fill="{{.Accent}}" opacity=".75"/>
-        <path d="M108 130 q 12 10 26 0" fill="none" stroke="{{.Accent}}" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>
-        <g stroke="{{.Wool}}" stroke-width="1.4" stroke-linecap="round" opacity=".6">
-          <path d="M62 96 l -12 -6"/><path d="M56 118 l -14 3"/><path d="M64 140 l -12 9"/>
-          <path d="M178 96 l 12 -6"/><path d="M184 118 l 14 3"/><path d="M176 140 l 12 9"/>
-          <path d="M120 162 l 2 14"/><path d="M98 158 l -4 13"/><path d="M142 158 l 5 13"/>
-        </g>
-      </svg>
-      {{end}}
+      {{if eq .Category "scarf"}}{{template "art-scarf" .}}{{else}}{{template "art-keychain" .}}{{end}}
     </div>
 
     <div class="card__body">
@@ -48,6 +32,7 @@
         {{end}}
       </div>
     </div>
+
   </li>
   {{else}}
   <li class="grid__empty">
